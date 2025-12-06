@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
 import ChatInterface from './components/ChatInterface';
 import CoachDashboard from './components/CoachDashboard';
 import StatsModal from './components/StatsModal';
@@ -26,19 +26,79 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Coach Routes */}
+        {/* LEARNER FLOW - Main User Experience */}
+        <Route path="/" element={<ScenarioSelector onSelectScenario={(id) => window.location.href = `/scenario/${id}`} />} />
+        <Route path="/scenario/:id" element={<ScenarioBriefingWrapper />} />
+        <Route path="/simulation" element={<SimulationView />} />
+        
+        {/* COACH FLOW - Setup & Configuration */}
         <Route path="/coach" element={<CoachHome />} />
         <Route path="/coach/scenario/:id/configure" element={<ScenarioConfigurator />} />
         <Route path="/coach/scenario/:id/test" element={<SimulationView />} />
-        
-        {/* Learner Routes */}
-        <Route path="/scenarios" element={<ScenarioSelector onSelectScenario={(id) => window.location.href = `/scenario/${id}`} />} />
-        <Route path="/simulation" element={<SimulationView />} />
-        
-        {/* Default: Coach Home */}
-        <Route path="/" element={<Navigate to="/coach" replace />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+// Wrapper component for scenario briefing that handles the flow
+function ScenarioBriefingWrapper() {
+  const { id } = useParams();
+  const [scenarioData, setScenarioData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchScenario = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
+        const data = await response.json();
+        setScenarioData(data);
+      } catch (error) {
+        console.error('Failed to fetch scenario:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchScenario();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 border-8 border-[#98C1D9] border-t-[#EE6C4D] rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-xl font-bold text-[#3D5A80]">Loading scenario...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!scenarioData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] to-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-2xl font-bold text-[#293241]">Scenario not found</p>
+          <Link to="/" className="mt-4 inline-block px-6 py-3 bg-[#EE6C4D] text-white rounded-xl font-bold">
+            Back to Scenarios
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ScenarioBriefing
+      scenarioName={scenarioData.name}
+      description={scenarioData.description}
+      difficulty={scenarioData.difficulty}
+      skillTags={scenarioData.skillTags || []}
+      orgContext={scenarioData.orgContext}
+      characterBio={scenarioData.characterBio}
+      situationBrief={scenarioData.situationBrief}
+      hiddenGoals={scenarioData.hiddenGoals}
+      objectives={scenarioData.objectives || []}
+      onStartScenario={() => window.location.href = '/simulation'}
+      onBack={() => window.location.href = '/'}
+    />
   );
 }
 
@@ -159,29 +219,49 @@ function SimulationView() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      {/* Header with Back Button */}
+      {/* Header with Navigation */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link 
-                to="/coach"
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                to="/"
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <div className="w-10 h-10 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] rounded-xl flex items-center justify-center">
+                  <span className="text-xl">🎯</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Pathwise</h1>
+                  <p className="text-xs text-gray-600">AI-Powered Coaching Simulation</p>
+                </div>
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Pathwise</h1>
-                <p className="text-sm text-gray-600">AI-Powered Coaching Simulation</p>
-              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="text-sm text-gray-600">
-                {isConnected ? 'Connected' : 'Disconnected'}
-              </span>
+            
+            <div className="flex items-center space-x-4">
+              {/* Mode Switcher */}
+              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                <Link
+                  to="/"
+                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-white"
+                >
+                  🎓 Learner
+                </Link>
+                <Link
+                  to="/coach"
+                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-white"
+                >
+                  👨‍🏫 Coach
+                </Link>
+              </div>
+              
+              {/* Connection Status */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className="text-sm text-gray-600">
+                  {isConnected ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
             </div>
           </div>
           {error && (
