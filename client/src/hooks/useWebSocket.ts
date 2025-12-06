@@ -11,10 +11,12 @@ interface UseWebSocketReturn {
   startScenario: () => void;
   sendMessage: (content: string) => void;
   endScenario: () => void;
+  resetScenario: () => void;
   lastEmployeeResponse: string | null;
   lastShadowFeed: ShadowThought[];
   lastMetrics: Metrics | null;
   lastAudio: string | null;
+  scenarioEnded: boolean;
   error: string | null;
 }
 
@@ -27,6 +29,7 @@ export function useWebSocket(): UseWebSocketReturn {
   const [lastShadowFeed, setLastShadowFeed] = useState<ShadowThought[]>([]);
   const [lastMetrics, setLastMetrics] = useState<Metrics | null>(null);
   const [lastAudio, setLastAudio] = useState<string | null>(null);
+  const [scenarioEnded, setScenarioEnded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,6 +71,7 @@ export function useWebSocket(): UseWebSocketReturn {
 
           case 'scenario_ended':
             console.log('Scenario ended:', message.report);
+            setScenarioEnded(true);
             setError(null);
             break;
 
@@ -135,15 +139,36 @@ export function useWebSocket(): UseWebSocketReturn {
     }
   }, []);
 
+  const resetScenario = useCallback(() => {
+    // Reset all state
+    setLastEmployeeResponse(null);
+    setLastShadowFeed([]);
+    setLastMetrics(null);
+    setLastAudio(null);
+    setScenarioEnded(false);
+    setError(null);
+
+    // Start a new scenario
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      console.log('Resetting and starting new scenario...');
+      wsRef.current.send(JSON.stringify({
+        type: 'start_scenario',
+        context: {}
+      }));
+    }
+  }, []);
+
   return {
     isConnected,
     startScenario,
     sendMessage,
     endScenario,
+    resetScenario,
     lastEmployeeResponse,
     lastShadowFeed,
     lastMetrics,
     lastAudio,
+    scenarioEnded,
     error
   };
 }

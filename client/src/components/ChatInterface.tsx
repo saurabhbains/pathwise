@@ -4,10 +4,12 @@ import type { Message } from '../types';
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (content: string) => void;
+  onEndScenario: () => void;
+  onViewStats: () => void;
   isLoading: boolean;
 }
 
-export default function ChatInterface({ messages, onSendMessage, isLoading }: ChatInterfaceProps) {
+export default function ChatInterface({ messages, onSendMessage, onEndScenario, onViewStats, isLoading }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -28,8 +30,32 @@ export default function ChatInterface({ messages, onSendMessage, isLoading }: Ch
     <div className="h-full flex flex-col bg-white">
       {/* Chat Header */}
       <div className="bg-primary-600 text-white px-6 py-4 shadow-sm">
-        <h2 className="text-lg font-semibold">Performance Review Simulation</h2>
-        <p className="text-sm text-primary-100">Practice your feedback delivery</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Performance Review Simulation</h2>
+            <p className="text-sm text-primary-100">Practice your feedback delivery</p>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={onViewStats}
+              className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span>My Stats</span>
+            </button>
+            <button
+              onClick={onEndScenario}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span>End Scenario</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Messages Area */}
