@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
 import ChatInterface from './components/ChatInterface';
 import CoachDashboard from './components/CoachDashboard';
 import StatsModal from './components/StatsModal';
 import ScenarioEndModal from './components/ScenarioEndModal';
+import CoachHome from './components/CoachHome';
+import ScenarioConfigurator from './components/ScenarioConfigurator';
+import ScenarioSelector from './components/ScenarioSelector';
+import ScenarioBriefing from './components/ScenarioBriefing';
 import { useWebSocket } from './hooks/useWebSocket';
 import type { Message, ShadowThought, Metrics } from './types';
 
@@ -18,6 +23,89 @@ function base64ToBlob(base64: string, mimeType: string): Blob {
 }
 
 function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* LEARNER FLOW - Main User Experience */}
+        <Route path="/" element={<ScenarioSelector onSelectScenario={(id) => window.location.href = `/scenario/${id}`} />} />
+        <Route path="/scenario/:id" element={<ScenarioBriefingWrapper />} />
+        <Route path="/simulation/:scenarioId" element={<SimulationView />} />
+        <Route path="/simulation" element={<SimulationView />} /> {/* Fallback for default scenario */}
+
+        {/* COACH FLOW - Setup & Configuration */}
+        <Route path="/coach" element={<CoachHome />} />
+        <Route path="/coach/scenario/:id/configure" element={<ScenarioConfigurator />} />
+        <Route path="/coach/scenario/:id/test" element={<SimulationView />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+// Wrapper component for scenario briefing that handles the flow
+function ScenarioBriefingWrapper() {
+  const { id } = useParams();
+  const [scenarioData, setScenarioData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchScenario = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
+        const data = await response.json();
+        setScenarioData(data);
+      } catch (error) {
+        console.error('Failed to fetch scenario:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchScenario();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 border-8 border-[#98C1D9] border-t-[#EE6C4D] rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-xl font-bold text-[#3D5A80]">Loading scenario...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!scenarioData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] to-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-2xl font-bold text-[#293241]">Scenario not found</p>
+          <Link to="/" className="mt-4 inline-block px-6 py-3 bg-[#EE6C4D] text-white rounded-xl font-bold">
+            Back to Scenarios
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ScenarioBriefing
+      scenarioName={scenarioData.name}
+      description={scenarioData.description}
+      difficulty={scenarioData.difficulty}
+      skillTags={scenarioData.skillTags || []}
+      orgContext={scenarioData.orgContext}
+      characterBio={scenarioData.characterBio}
+      situationBrief={scenarioData.situationBrief}
+      hiddenGoals={scenarioData.hiddenGoals}
+      objectives={scenarioData.objectives || []}
+      onStartScenario={() => window.location.href = `/simulation/${id}`}
+      onBack={() => window.location.href = '/'}
+    />
+  );
+}
+
+// Simulation View Component (the original app content)
+function SimulationView() {
+  const { scenarioId } = useParams<{ scenarioId?: string }>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [shadowThoughts, setShadowThoughts] = useState<ShadowThought[]>([]);
   const [metrics, setMetrics] = useState<Metrics>({
@@ -28,6 +116,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [scenarioStarted, setScenarioStarted] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [scenarioInfo, setScenarioInfo] = useState({
+    characterName: 'Alex',
+    characterRole: 'Employee',
+    scenarioName: 'Performance Review'
+  });
 
   const {
     isConnected,
@@ -40,11 +133,33 @@ function App() {
     lastMetrics,
     lastAudio,
     scenarioEnded,
+    scenarioReport,
     error
-  } = useWebSocket();
+  } = useWebSocket(scenarioId);
 
-  // Auto-start is now handled directly in useWebSocket hook
-  // No need for this useEffect anymore
+  // Fetch scenario info on mount
+  useEffect(() => {
+    const fetchScenarioInfo = async () => {
+      try {
+        const id = scenarioId || 'def-dev-001'; // Default to defensive developer
+        const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
+        const data = await response.json();
+
+        if (data.characterBio) {
+          setScenarioInfo({
+            characterName: data.characterBio.name || 'Alex',
+            characterRole: data.characterBio.role || 'Employee',
+            scenarioName: data.name || 'Performance Review'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch scenario info:', error);
+        // Keep defaults
+      }
+    };
+
+    fetchScenarioInfo();
+  }, [scenarioId]);
 
   // Handle employee response
   useEffect(() => {
@@ -84,10 +199,8 @@ function App() {
 
       audio.play().catch(err => {
         console.error('Error playing audio:', err);
-        // Browser might block autoplay - user will still see text
       });
 
-      // Cleanup
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
       };
@@ -102,7 +215,6 @@ function App() {
 
     setIsLoading(true);
 
-    // Add manager's message
     const managerMessage: Message = {
       id: Date.now().toString(),
       role: 'manager',
@@ -111,12 +223,11 @@ function App() {
     };
     setMessages(prev => [...prev, managerMessage]);
 
-    // Send via WebSocket
     wsSendMessage(content);
   };
 
   const handleEndScenario = () => {
-    if (confirm('Are you sure you want to end this scenario? You will receive a final performance report.')) {
+    if (confirm('Are you sure you want to end this scenario?')) {
       wsEndScenario();
     }
   };
@@ -126,7 +237,6 @@ function App() {
   };
 
   const handleStartNew = () => {
-    // Reset local state
     setMessages([]);
     setShadowThoughts([]);
     setMetrics({
@@ -136,30 +246,61 @@ function App() {
     });
     setIsLoading(false);
     setScenarioStarted(false);
-
-    // Reset WebSocket and start new scenario
     wsResetScenario();
   };
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      {/* Header with Navigation */}
+      <header className="bg-[#3D5A80] shadow-sm border-b border-[#293241]">
         <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pathwise</h1>
-              <p className="text-sm text-gray-600">AI-Powered Coaching Simulation</p>
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+              >
+                <img
+                  src="/pathwiseicon_square.png"
+                  alt="Pathwise"
+                  className="w-10 h-10 rounded-lg"
+                />
+                <img
+                  src="/pathwise_wordmark_white.png"
+                  alt="Pathwise - AI-Powered Coaching Simulation"
+                  className="h-8"
+                />
+              </Link>
             </div>
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="text-sm text-gray-600">
-                {isConnected ? 'Connected' : 'Disconnected'}
-              </span>
+
+            <div className="flex items-center space-x-4">
+              {/* Mode Switcher */}
+              <div className="flex items-center space-x-2 bg-[#293241] rounded-lg p-1">
+                <Link
+                  to="/"
+                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
+                >
+                  🎓 Learner
+                </Link>
+                <Link
+                  to="/coach"
+                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
+                >
+                  👨‍🏫 Coach
+                </Link>
+              </div>
+
+              {/* Connection Status */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
+                <span className="text-sm text-[#E0FBFC]">
+                  {isConnected ? 'Connected' : 'Disconnected'}
+                </span>
+              </div>
             </div>
           </div>
           {error && (
-            <div className="mt-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+            <div className="mt-2 text-sm text-red-200 bg-red-900 bg-opacity-50 px-3 py-2 rounded">
               {error}
             </div>
           )}
@@ -176,6 +317,9 @@ function App() {
             onEndScenario={handleEndScenario}
             onViewStats={handleViewStats}
             isLoading={isLoading}
+            characterName={scenarioInfo.characterName}
+            characterRole={scenarioInfo.characterRole}
+            scenarioName={scenarioInfo.scenarioName}
           />
         </div>
 
@@ -188,7 +332,7 @@ function App() {
         </div>
       </div>
 
-      {/* Stats Modal */}
+      {/* Modals */}
       <StatsModal
         isOpen={showStatsModal}
         onClose={() => setShowStatsModal(false)}
@@ -196,10 +340,10 @@ function App() {
         messageCount={messages.filter(m => m.role === 'manager').length}
       />
 
-      {/* Scenario End Modal */}
       <ScenarioEndModal
         isOpen={scenarioEnded}
         onStartNew={handleStartNew}
+        report={scenarioReport}
         metrics={metrics}
         messageCount={messages.filter(m => m.role === 'manager').length}
       />

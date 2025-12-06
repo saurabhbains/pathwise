@@ -5,7 +5,7 @@ import { config } from '../utils/config.js';
 import { logger } from '../utils/logger.js';
 import { audioRouter } from './audioRouter.js';
 import { ScenarioEngine } from '../engine/engine.js';
-import { performanceReviewScenario } from '../engine/scenarios/index.js';
+import { performanceReviewScenario, getAllScenarios, getScenarioById } from '../engine/scenarios/index.js';
 import { createLLMProvider } from '../llm/index.js';
 import { getVoiceGenerator, VoiceProfile } from '../audio/voiceGenerator.js';
 
@@ -43,6 +43,54 @@ app.get('/api/scenarios', (_req, res) => {
   });
 });
 
+// Get all scenarios from library
+app.get('/api/scenarios/library', (_req, res) => {
+  const scenarios = getAllScenarios();
+  res.json({
+    scenarios: scenarios.map(s => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      difficulty: s.difficulty,
+      skillTags: s.skillTags || [],
+      characterName: s.characterBio?.name || s.defaultContext.employeeName || 'Employee',
+      characterRole: s.characterBio?.role || s.defaultContext.employeeRole || 'Team Member',
+      estimatedTime: getEstimatedTime(s.successCriteria?.minTurns || 5)
+    }))
+  });
+});
+
+// Get specific scenario details (for briefing)
+app.get('/api/scenarios/:id', (req, res) => {
+  const scenario = getScenarioById(req.params.id);
+  if (!scenario) {
+    res.status(404).json({ error: 'Scenario not found' });
+    return;
+  }
+
+  res.json({
+    id: scenario.id,
+    name: scenario.name,
+    description: scenario.description,
+    difficulty: scenario.difficulty,
+    skillTags: scenario.skillTags || [],
+    orgContext: scenario.orgContext,
+    characterBio: scenario.characterBio,
+    situationBrief: scenario.situationBrief,
+    hiddenGoals: scenario.hiddenGoals,
+    objectives: scenario.objectives,
+    successCriteria: scenario.successCriteria,
+    coachingFramework: scenario.coachingFramework
+  });
+});
+
+function getEstimatedTime(minTurns: number): string {
+  const minutes = minTurns * 3; // Rough estimate: 3 min per turn
+  const low = minutes;
+  const high = minutes + 10;
+  return `${low}-${high} min`;
+}
+
 // Audio router
 app.use('/api/audio', audioRouter);
 
@@ -62,12 +110,24 @@ wss.on('connection', (ws) => {
 
       switch (message.type) {
         case 'start_scenario': {
+          // Get the scenario ID from the message, default to performance review
+          const scenarioId = message.scenarioId || 'perf-review-001';
+          const scenario = getScenarioById(scenarioId);
+
+          if (!scenario) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: `Scenario not found: ${scenarioId}`
+            }));
+            return;
+          }
+
           // Create LLM provider
           const llm = createLLMProvider(config.llmProvider as 'gemini' | 'claude' | 'ollama');
 
           // Create scenario engine
           const engine = new ScenarioEngine(llm);
-          await engine.initialize(performanceReviewScenario, message.context);
+          await engine.initialize(scenario, message.context);
 
           // Store engine for this connection
           activeEngines.set(ws, engine);
@@ -84,7 +144,7 @@ wss.on('connection', (ws) => {
             }
           }));
 
-          logger.info('Scenario started');
+          logger.info('Scenario started', { scenarioId, scenarioName: scenario.name });
           break;
         }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import type { ShadowThought, Metrics } from '../types';
+import type { ShadowThought, Metrics, ScenarioReport } from '../types';
 
 interface WebSocketMessage {
   type: string;
@@ -8,7 +8,7 @@ interface WebSocketMessage {
 
 interface UseWebSocketReturn {
   isConnected: boolean;
-  startScenario: () => void;
+  startScenario: (scenarioId?: string) => void;
   sendMessage: (content: string) => void;
   endScenario: () => void;
   resetScenario: () => void;
@@ -17,12 +17,13 @@ interface UseWebSocketReturn {
   lastMetrics: Metrics | null;
   lastAudio: string | null;
   scenarioEnded: boolean;
+  scenarioReport: ScenarioReport | null;
   error: string | null;
 }
 
 const WS_URL = 'ws://localhost:3000';
 
-export function useWebSocket(): UseWebSocketReturn {
+export function useWebSocket(scenarioId?: string): UseWebSocketReturn {
   const wsRef = useRef<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [lastEmployeeResponse, setLastEmployeeResponse] = useState<string | null>(null);
@@ -30,6 +31,7 @@ export function useWebSocket(): UseWebSocketReturn {
   const [lastMetrics, setLastMetrics] = useState<Metrics | null>(null);
   const [lastAudio, setLastAudio] = useState<string | null>(null);
   const [scenarioEnded, setScenarioEnded] = useState(false);
+  const [scenarioReport, setScenarioReport] = useState<ScenarioReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,9 +45,10 @@ export function useWebSocket(): UseWebSocketReturn {
       setError(null);
 
       // Auto-start scenario immediately when connected
-      console.log('Auto-starting scenario...');
+      console.log('Auto-starting scenario...', scenarioId);
       ws.send(JSON.stringify({
         type: 'start_scenario',
+        scenarioId: scenarioId || 'perf-review-001', // Default to original scenario
         context: {}
       }));
     };
@@ -72,6 +75,7 @@ export function useWebSocket(): UseWebSocketReturn {
           case 'scenario_ended':
             console.log('Scenario ended:', message.report);
             setScenarioEnded(true);
+            setScenarioReport(message.report);
             setError(null);
             break;
 
@@ -102,21 +106,22 @@ export function useWebSocket(): UseWebSocketReturn {
         ws.close();
       }
     };
-  }, []);
+  }, [scenarioId]); // Re-connect if scenarioId changes
 
-  const startScenario = useCallback(() => {
+  const startScenario = useCallback((customScenarioId?: string) => {
     console.log('startScenario called, WebSocket state:', wsRef.current?.readyState);
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       console.log('Sending start_scenario message');
       wsRef.current.send(JSON.stringify({
         type: 'start_scenario',
+        scenarioId: customScenarioId || scenarioId || 'perf-review-001',
         context: {} // Use default scenario context
       }));
     } else {
       console.error('WebSocket not open, state:', wsRef.current?.readyState);
       setError('WebSocket not connected');
     }
-  }, []);
+  }, [scenarioId]);
 
   const sendMessage = useCallback((content: string) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -146,6 +151,7 @@ export function useWebSocket(): UseWebSocketReturn {
     setLastMetrics(null);
     setLastAudio(null);
     setScenarioEnded(false);
+    setScenarioReport(null);
     setError(null);
 
     // Start a new scenario
@@ -153,10 +159,11 @@ export function useWebSocket(): UseWebSocketReturn {
       console.log('Resetting and starting new scenario...');
       wsRef.current.send(JSON.stringify({
         type: 'start_scenario',
+        scenarioId: scenarioId || 'perf-review-001',
         context: {}
       }));
     }
-  }, []);
+  }, [scenarioId]);
 
   return {
     isConnected,
@@ -169,6 +176,7 @@ export function useWebSocket(): UseWebSocketReturn {
     lastMetrics,
     lastAudio,
     scenarioEnded,
+    scenarioReport,
     error
   };
 }
