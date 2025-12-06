@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import ChatInterface from './components/ChatInterface';
 import CoachDashboard from './components/CoachDashboard';
 import StatsModal from './components/StatsModal';
 import ScenarioEndModal from './components/ScenarioEndModal';
+import CoachHome from './components/CoachHome';
+import ScenarioConfigurator from './components/ScenarioConfigurator';
+import ScenarioSelector from './components/ScenarioSelector';
+import ScenarioBriefing from './components/ScenarioBriefing';
 import { useWebSocket } from './hooks/useWebSocket';
 import type { Message, ShadowThought, Metrics } from './types';
 
@@ -18,6 +23,27 @@ function base64ToBlob(base64: string, mimeType: string): Blob {
 }
 
 function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Coach Routes */}
+        <Route path="/coach" element={<CoachHome />} />
+        <Route path="/coach/scenario/:id/configure" element={<ScenarioConfigurator />} />
+        <Route path="/coach/scenario/:id/test" element={<SimulationView />} />
+        
+        {/* Learner Routes */}
+        <Route path="/scenarios" element={<ScenarioSelector onSelectScenario={(id) => window.location.href = `/scenario/${id}`} />} />
+        <Route path="/simulation" element={<SimulationView />} />
+        
+        {/* Default: Coach Home */}
+        <Route path="/" element={<Navigate to="/coach" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+// Simulation View Component (the original app content)
+function SimulationView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [shadowThoughts, setShadowThoughts] = useState<ShadowThought[]>([]);
   const [metrics, setMetrics] = useState<Metrics>({
@@ -42,9 +68,6 @@ function App() {
     scenarioEnded,
     error
   } = useWebSocket();
-
-  // Auto-start is now handled directly in useWebSocket hook
-  // No need for this useEffect anymore
 
   // Handle employee response
   useEffect(() => {
@@ -84,10 +107,8 @@ function App() {
 
       audio.play().catch(err => {
         console.error('Error playing audio:', err);
-        // Browser might block autoplay - user will still see text
       });
 
-      // Cleanup
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
       };
@@ -102,7 +123,6 @@ function App() {
 
     setIsLoading(true);
 
-    // Add manager's message
     const managerMessage: Message = {
       id: Date.now().toString(),
       role: 'manager',
@@ -111,12 +131,11 @@ function App() {
     };
     setMessages(prev => [...prev, managerMessage]);
 
-    // Send via WebSocket
     wsSendMessage(content);
   };
 
   const handleEndScenario = () => {
-    if (confirm('Are you sure you want to end this scenario? You will receive a final performance report.')) {
+    if (confirm('Are you sure you want to end this scenario?')) {
       wsEndScenario();
     }
   };
@@ -126,7 +145,6 @@ function App() {
   };
 
   const handleStartNew = () => {
-    // Reset local state
     setMessages([]);
     setShadowThoughts([]);
     setMetrics({
@@ -136,20 +154,28 @@ function App() {
     });
     setIsLoading(false);
     setScenarioStarted(false);
-
-    // Reset WebSocket and start new scenario
     wsResetScenario();
   };
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      {/* Header */}
+      {/* Header with Back Button */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Pathwise</h1>
-              <p className="text-sm text-gray-600">AI-Powered Coaching Simulation</p>
+            <div className="flex items-center space-x-4">
+              <Link 
+                to="/coach"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Pathwise</h1>
+                <p className="text-sm text-gray-600">AI-Powered Coaching Simulation</p>
+              </div>
             </div>
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -188,7 +214,7 @@ function App() {
         </div>
       </div>
 
-      {/* Stats Modal */}
+      {/* Modals */}
       <StatsModal
         isOpen={showStatsModal}
         onClose={() => setShowStatsModal(false)}
@@ -196,7 +222,6 @@ function App() {
         messageCount={messages.filter(m => m.role === 'manager').length}
       />
 
-      {/* Scenario End Modal */}
       <ScenarioEndModal
         isOpen={scenarioEnded}
         onStartNew={handleStartNew}
