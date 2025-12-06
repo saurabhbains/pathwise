@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { ShadowThought, Metrics, ScenarioReport } from '../types';
+import { config } from '../config';
 
 interface WebSocketMessage {
   type: string;
@@ -21,7 +22,7 @@ interface UseWebSocketReturn {
   error: string | null;
 }
 
-const WS_URL = 'ws://localhost:3000';
+const WS_URL = config.wsUrl;
 
 export function useWebSocket(scenarioId?: string): UseWebSocketReturn {
   const wsRef = useRef<WebSocket | null>(null);

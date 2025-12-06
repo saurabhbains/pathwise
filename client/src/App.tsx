@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
+import { config } from './config';
 import ChatInterface from './components/ChatInterface';
 import CoachDashboard from './components/CoachDashboard';
 import StatsModal from './components/StatsModal';
@@ -56,7 +57,7 @@ function ScenarioBriefingWrapper() {
   useEffect(() => {
     const fetchScenario = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
+        const response = await fetch(`${config.apiUrl}/api/scenarios/${id}`);
         const data = await response.json();
         setScenarioData(data);
       } catch (error) {
@@ -148,7 +149,7 @@ function SimulationView() {
     const fetchScenarioInfo = async () => {
       try {
         const id = scenarioId || 'def-dev-001'; // Default to defensive developer
-        const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
+        const response = await fetch(`${config.apiUrl}/api/scenarios/${id}`);
         const data = await response.json();
 
         if (data.characterBio) {
