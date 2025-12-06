@@ -54,10 +54,7 @@ const skillCategories = [
   { id: 'difficult_feedback', name: 'Difficult Feedback', icon: '💬', color: 'blue' },
   { id: 'performance_pip', name: 'Performance & PIP', icon: '📊', color: 'yellow' },
   { id: 'dei_topic', name: 'DEI Topics', icon: '🌍', color: 'purple' },
-  { id: 'conflict_resolution', name: 'Conflict Resolution', icon: '🤝', color: 'green' },
-  { id: 'career_development', name: 'Career Development', icon: '🚀', color: 'indigo' },
-  { id: 'team_dynamics', name: 'Team Dynamics', icon: '👥', color: 'pink' },
-  { id: 'termination', name: 'Termination', icon: '⚠️', color: 'red' }
+  { id: 'conflict_resolution', name: 'Conflict Resolution', icon: '🤝', color: 'green' }
 ];
 
 export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioSelectorProps) {
@@ -128,7 +125,7 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
           </div>
 
           {/* Skill Filter Pills */}
-          <div className="flex items-center space-x-3 overflow-x-auto pb-2">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setSelectedSkill(null)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
@@ -216,8 +213,7 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
           {filteredScenarios.map((scenario) => (
             <div
               key={scenario.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-primary-400 cursor-pointer transform hover:-translate-y-1"
-              onClick={() => onSelectScenario(scenario.id)}
+              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-primary-400 transform hover:-translate-y-1"
             >
               {/* Card Header */}
               <div className="p-6 pb-4">
@@ -270,7 +266,13 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
 
               {/* Card Footer */}
               <div className="bg-gradient-to-r from-primary-50 to-blue-50 px-6 py-4 border-t border-gray-200">
-                <button className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectScenario(scenario.id);
+                  }}
+                  className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                >
                   <span>View Briefing</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
