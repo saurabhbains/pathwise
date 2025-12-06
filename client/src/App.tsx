@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import CoachDashboard from './components/CoachDashboard';
+import StatsModal from './components/StatsModal';
+import ScenarioEndModal from './components/ScenarioEndModal';
 import { useWebSocket } from './hooks/useWebSocket';
 import type { Message, ShadowThought, Metrics } from './types';
 
@@ -25,15 +27,19 @@ function App() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [scenarioStarted, setScenarioStarted] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
 
   const {
     isConnected,
     startScenario,
     sendMessage: wsSendMessage,
+    endScenario: wsEndScenario,
+    resetScenario: wsResetScenario,
     lastEmployeeResponse,
     lastShadowFeed,
     lastMetrics,
     lastAudio,
+    scenarioEnded,
     error
   } = useWebSocket();
 
@@ -109,6 +115,32 @@ function App() {
     wsSendMessage(content);
   };
 
+  const handleEndScenario = () => {
+    if (confirm('Are you sure you want to end this scenario? You will receive a final performance report.')) {
+      wsEndScenario();
+    }
+  };
+
+  const handleViewStats = () => {
+    setShowStatsModal(true);
+  };
+
+  const handleStartNew = () => {
+    // Reset local state
+    setMessages([]);
+    setShadowThoughts([]);
+    setMetrics({
+      psychologicalSafety: 100,
+      legalRisk: 0,
+      clarityOfFeedback: 100,
+    });
+    setIsLoading(false);
+    setScenarioStarted(false);
+
+    // Reset WebSocket and start new scenario
+    wsResetScenario();
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       {/* Header */}
@@ -141,6 +173,8 @@ function App() {
           <ChatInterface
             messages={messages}
             onSendMessage={handleSendMessage}
+            onEndScenario={handleEndScenario}
+            onViewStats={handleViewStats}
             isLoading={isLoading}
           />
         </div>
@@ -153,6 +187,22 @@ function App() {
           />
         </div>
       </div>
+
+      {/* Stats Modal */}
+      <StatsModal
+        isOpen={showStatsModal}
+        onClose={() => setShowStatsModal(false)}
+        metrics={metrics}
+        messageCount={messages.filter(m => m.role === 'manager').length}
+      />
+
+      {/* Scenario End Modal */}
+      <ScenarioEndModal
+        isOpen={scenarioEnded}
+        onStartNew={handleStartNew}
+        metrics={metrics}
+        messageCount={messages.filter(m => m.role === 'manager').length}
+      />
     </div>
   );
 }
