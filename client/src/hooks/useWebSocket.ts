@@ -38,6 +38,13 @@ export function useWebSocket(): UseWebSocketReturn {
       console.log('WebSocket connected');
       setIsConnected(true);
       setError(null);
+
+      // Auto-start scenario immediately when connected
+      console.log('Auto-starting scenario...');
+      ws.send(JSON.stringify({
+        type: 'start_scenario',
+        context: {}
+      }));
     };
 
     ws.onmessage = (event) => {
