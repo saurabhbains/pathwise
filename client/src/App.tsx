@@ -5,6 +5,7 @@ import CoachDashboard from './components/CoachDashboard';
 import StatsModal from './components/StatsModal';
 import ScenarioEndModal from './components/ScenarioEndModal';
 import CoachHome from './components/CoachHome';
+import ClientScenarios from './components/ClientScenarios';
 import ScenarioConfigurator from './components/ScenarioConfigurator';
 import ScenarioSelector from './components/ScenarioSelector';
 import ScenarioBriefing from './components/ScenarioBriefing';
@@ -36,6 +37,7 @@ function App() {
 
         {/* COACH FLOW - Setup & Configuration */}
         <Route path="/coach" element={<CoachHome />} />
+        <Route path="/coach/client/:clientId" element={<ClientScenarios />} />
         <Route path="/coach/scenario/:id/configure" element={<ScenarioConfigurator />} />
         <Route path="/coach/scenario/:id/test" element={<SimulationView />} />
       </Routes>
