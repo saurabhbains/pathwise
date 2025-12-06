@@ -29,6 +29,7 @@ export interface SimulationConfig {
   employeeHandbook?: string;
   competencyMatrix?: string;
   roleDescription?: string;
+  characterBio?: any; // Character bio from scenario
 }
 
 export class SimulationCoordinator {
@@ -84,8 +85,9 @@ export class SimulationCoordinator {
       situationBrief: this.config.situationBrief,
       employeeHandbook: this.config.employeeHandbook,
       competencyMatrix: this.config.competencyMatrix,
-      roleDescription: this.config.roleDescription
-    };
+      roleDescription: this.config.roleDescription,
+      characterBio: this.config.characterBio // Pass through character bio
+    } as any;
 
     // Process with both agents in parallel
     const [employeeResponse, hrResponse] = await Promise.all([

@@ -93,30 +93,36 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="bg-[#3D5A80] border-b border-[#293241] shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform shadow-lg">
-                <span className="text-3xl">🎯</span>
-              </div>
+              <img 
+                src="/pathwiseicon_square.png" 
+                alt="Pathwise" 
+                className="w-16 h-16 rounded-2xl shadow-lg"
+              />
               <div>
-                <h1 className="text-4xl font-black text-[#293241] mb-1 tracking-tight">Scenario Library</h1>
-                <p className="text-lg text-[#3D5A80] font-medium">Choose your adventure in difficult conversations</p>
+                <img 
+                  src="/pathwise_wordmark_white.png" 
+                  alt="Pathwise" 
+                  className="h-10 mb-2"
+                />
+                <p className="text-lg text-[#E0FBFC] font-medium">Choose your adventure in difficult conversations</p>
               </div>
             </div>
             
             {/* Mode Switcher */}
             <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-[#E0FBFC] rounded-xl p-1 border-2 border-[#98C1D9]">
+              <div className="flex items-center space-x-2 bg-[#293241] rounded-xl p-1 border-2 border-[#98C1D9]">
                 <button
-                  className="px-4 py-2 bg-white text-[#3D5A80] rounded-lg font-bold shadow-md"
+                  className="px-4 py-2 bg-[#98C1D9] text-[#293241] rounded-lg font-bold shadow-md"
                 >
                   🎓 Learner
                 </button>
                 <button
                   onClick={() => window.location.href = '/coach'}
-                  className="px-4 py-2 text-[#3D5A80] hover:bg-white rounded-lg font-bold transition-colors"
+                  className="px-4 py-2 text-[#E0FBFC] hover:bg-[#3D5A80] rounded-lg font-bold transition-colors"
                 >
                   👨‍🏫 Coach
                 </button>
@@ -130,8 +136,8 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
               onClick={() => setSelectedSkill(null)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                 selectedSkill === null
-                  ? 'bg-primary-600 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-primary-400'
+                  ? 'bg-[#EE6C4D] text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-[#98C1D9]'
               }`}
             >
               All Skills
@@ -143,7 +149,7 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center space-x-2 ${
                   selectedSkill === skill.id
                     ? `bg-${skill.color}-600 text-white shadow-md`
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-primary-400'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-[#98C1D9]'
                 }`}
               >
                 <span>{skill.icon}</span>
@@ -213,10 +219,10 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
           {filteredScenarios.map((scenario) => (
             <div
               key={scenario.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-primary-400 transform hover:-translate-y-1"
+              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-primary-400 transform hover:-translate-y-1 flex flex-col h-full"
             >
               {/* Card Header */}
-              <div className="p-6 pb-4">
+              <div className="p-6 pb-4 flex-1 flex flex-col">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{scenario.name}</h3>
@@ -256,7 +262,7 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
                 </div>
 
                 {/* Time Estimate */}
-                <div className="flex items-center text-xs text-gray-500">
+                <div className="flex items-center text-xs text-gray-500 mt-auto">
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -265,7 +271,7 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
               </div>
 
               {/* Card Footer */}
-              <div className="bg-gradient-to-r from-primary-50 to-blue-50 px-6 py-4 border-t border-gray-200">
+              <div className="bg-gradient-to-r from-primary-50 to-blue-50 px-6 py-4 border-t border-gray-200 mt-auto">
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();

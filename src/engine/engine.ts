@@ -58,7 +58,8 @@ export class ScenarioEngine {
       employeeName: context.employeeName,
       employeeHandbook: context.employeeHandbook,
       competencyMatrix: context.competencyMatrix,
-      roleDescription: context.roleDescription
+      roleDescription: context.roleDescription,
+      characterBio: scenario.characterBio // Pass character bio to coordinator
     });
 
     // Initialize state

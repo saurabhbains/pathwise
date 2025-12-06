@@ -29,7 +29,8 @@ function App() {
         {/* LEARNER FLOW - Main User Experience */}
         <Route path="/" element={<ScenarioSelector onSelectScenario={(id) => window.location.href = `/scenario/${id}`} />} />
         <Route path="/scenario/:id" element={<ScenarioBriefingWrapper />} />
-        <Route path="/simulation" element={<SimulationView />} />
+        <Route path="/simulation/:scenarioId" element={<SimulationView />} />
+        <Route path="/simulation" element={<SimulationView />} /> {/* Fallback for default scenario */}
         
         {/* COACH FLOW - Setup & Configuration */}
         <Route path="/coach" element={<CoachHome />} />
@@ -96,7 +97,7 @@ function ScenarioBriefingWrapper() {
       situationBrief={scenarioData.situationBrief}
       hiddenGoals={scenarioData.hiddenGoals}
       objectives={scenarioData.objectives || []}
-      onStartScenario={() => window.location.href = '/simulation'}
+      onStartScenario={() => window.location.href = `/simulation/${id}`}
       onBack={() => window.location.href = '/'}
     />
   );
@@ -104,6 +105,7 @@ function ScenarioBriefingWrapper() {
 
 // Simulation View Component (the original app content)
 function SimulationView() {
+  const { scenarioId } = useParams<{ scenarioId?: string }>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [shadowThoughts, setShadowThoughts] = useState<ShadowThought[]>([]);
   const [metrics, setMetrics] = useState<Metrics>({
@@ -114,6 +116,11 @@ function SimulationView() {
   const [isLoading, setIsLoading] = useState(false);
   const [scenarioStarted, setScenarioStarted] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [scenarioInfo, setScenarioInfo] = useState({
+    characterName: 'Alex',
+    characterRole: 'Employee',
+    scenarioName: 'Performance Review'
+  });
 
   const {
     isConnected,
@@ -126,8 +133,33 @@ function SimulationView() {
     lastMetrics,
     lastAudio,
     scenarioEnded,
+    scenarioReport,
     error
-  } = useWebSocket();
+  } = useWebSocket(scenarioId);
+
+  // Fetch scenario info on mount
+  useEffect(() => {
+    const fetchScenarioInfo = async () => {
+      try {
+        const id = scenarioId || 'def-dev-001'; // Default to defensive developer
+        const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
+        const data = await response.json();
+        
+        if (data.characterBio) {
+          setScenarioInfo({
+            characterName: data.characterBio.name || 'Alex',
+            characterRole: data.characterBio.role || 'Employee',
+            scenarioName: data.name || 'Performance Review'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch scenario info:', error);
+        // Keep defaults
+      }
+    };
+    
+    fetchScenarioInfo();
+  }, [scenarioId]);
 
   // Handle employee response
   useEffect(() => {
@@ -220,36 +252,39 @@ function SimulationView() {
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       {/* Header with Navigation */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-[#3D5A80] shadow-sm border-b border-[#293241]">
         <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Link 
                 to="/"
-                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
               >
-                <div className="w-10 h-10 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] rounded-xl flex items-center justify-center">
-                  <span className="text-xl">🎯</span>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Pathwise</h1>
-                  <p className="text-xs text-gray-600">AI-Powered Coaching Simulation</p>
-                </div>
+                <img 
+                  src="/pathwiseicon_square.png" 
+                  alt="Pathwise" 
+                  className="w-10 h-10 rounded-lg"
+                />
+                <img 
+                  src="/pathwise_wordmark_white.png" 
+                  alt="Pathwise - AI-Powered Coaching Simulation" 
+                  className="h-8"
+                />
               </Link>
             </div>
             
             <div className="flex items-center space-x-4">
               {/* Mode Switcher */}
-              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center space-x-2 bg-[#293241] rounded-lg p-1">
                 <Link
                   to="/"
-                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-white"
+                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
                 >
                   🎓 Learner
                 </Link>
                 <Link
                   to="/coach"
-                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors hover:bg-white"
+                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
                 >
                   👨‍🏫 Coach
                 </Link>
@@ -257,15 +292,15 @@ function SimulationView() {
               
               {/* Connection Status */}
               <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span className="text-sm text-gray-600">
+                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
+                <span className="text-sm text-[#E0FBFC]">
                   {isConnected ? 'Connected' : 'Disconnected'}
                 </span>
               </div>
             </div>
           </div>
           {error && (
-            <div className="mt-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded">
+            <div className="mt-2 text-sm text-red-200 bg-red-900 bg-opacity-50 px-3 py-2 rounded">
               {error}
             </div>
           )}
@@ -282,6 +317,9 @@ function SimulationView() {
             onEndScenario={handleEndScenario}
             onViewStats={handleViewStats}
             isLoading={isLoading}
+            characterName={scenarioInfo.characterName}
+            characterRole={scenarioInfo.characterRole}
+            scenarioName={scenarioInfo.scenarioName}
           />
         </div>
 
@@ -305,6 +343,7 @@ function SimulationView() {
       <ScenarioEndModal
         isOpen={scenarioEnded}
         onStartNew={handleStartNew}
+        report={scenarioReport}
         metrics={metrics}
         messageCount={messages.filter(m => m.role === 'manager').length}
       />

@@ -1,18 +1,45 @@
-import type { Metrics } from '../types';
+import type { Metrics, ScenarioReport } from '../types';
 
 interface ScenarioEndModalProps {
   isOpen: boolean;
   onStartNew: () => void;
+  report: ScenarioReport | null;
   metrics: Metrics;
   messageCount: number;
 }
 
-export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageCount }: ScenarioEndModalProps) {
+export default function ScenarioEndModal({ isOpen, onStartNew, report, metrics, messageCount }: ScenarioEndModalProps) {
   if (!isOpen) return null;
 
-  const averageScore = Math.round((metrics.psychologicalSafety + (100 - metrics.legalRisk) + metrics.clarityOfFeedback) / 3);
+  // Determine if scenario was completed properly
+  const wasAbandoned = report?.outcome === 'abandoned';
+
+  // Calculate score based on outcome and metrics
+  const calculateScore = () => {
+    if (wasAbandoned) {
+      // Abandoned scenarios get a maximum of 40% (or actual average if lower)
+      const rawAverage = (metrics.psychologicalSafety + (100 - metrics.legalRisk) + metrics.clarityOfFeedback) / 3;
+      return Math.min(40, Math.round(rawAverage));
+    }
+    
+    if (report?.finalMetrics) {
+      return Math.round((
+        report.finalMetrics.psychologicalSafety +
+        (100 - report.finalMetrics.legalRisk) +
+        report.finalMetrics.clarityOfFeedback
+      ) / 3);
+    }
+    
+    // Fallback to current metrics
+    return Math.round((metrics.psychologicalSafety + (100 - metrics.legalRisk) + metrics.clarityOfFeedback) / 3);
+  };
+
+  const averageScore = calculateScore();
 
   const getOverallRating = () => {
+    if (wasAbandoned) {
+      return { text: 'Incomplete', color: 'text-orange-600', emoji: '⚠️' };
+    }
     if (averageScore >= 80) return { text: 'Excellent', color: 'text-green-600', emoji: '🎉' };
     if (averageScore >= 60) return { text: 'Good', color: 'text-blue-600', emoji: '👍' };
     if (averageScore >= 40) return { text: 'Needs Improvement', color: 'text-yellow-600', emoji: '⚠️' };
@@ -20,6 +47,7 @@ export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageC
   };
 
   const rating = getOverallRating();
+  const finalMetrics = report?.finalMetrics || metrics;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -28,7 +56,11 @@ export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageC
         <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-8 text-center">
           <div className="text-6xl mb-4">{rating.emoji}</div>
           <h2 className="text-3xl font-bold mb-2">Scenario Complete!</h2>
-          <p className="text-primary-100">Here's how you did in this performance review</p>
+          <p className="text-primary-100">
+            {wasAbandoned 
+              ? "Scenario ended too early - try to complete the full conversation" 
+              : "Here's how you did in this performance review"}
+          </p>
         </div>
 
         {/* Content */}
@@ -38,7 +70,9 @@ export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageC
             <div className="text-sm font-medium text-gray-600 mb-1">Overall Performance</div>
             <div className={`text-4xl font-bold ${rating.color}`}>{rating.text}</div>
             <div className="text-2xl font-semibold text-gray-700 mt-2">{averageScore}%</div>
-            <div className="text-sm text-gray-600 mt-2">Based on {messageCount} message{messageCount !== 1 ? 's' : ''} exchanged</div>
+            <div className="text-sm text-gray-600 mt-2">
+              Based on {report?.turnCount || messageCount} message{(report?.turnCount || messageCount) !== 1 ? 's' : ''} exchanged
+            </div>
           </div>
 
           {/* Detailed Metrics */}
@@ -46,14 +80,14 @@ export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageC
             {/* Psychological Safety */}
             <div className="bg-white border-2 border-gray-200 rounded-lg p-4 text-center">
               <div className="text-sm font-medium text-gray-600 mb-2">Psychological Safety</div>
-              <div className="text-3xl font-bold text-gray-900">{Math.round(metrics.psychologicalSafety)}%</div>
+              <div className="text-3xl font-bold text-gray-900">{Math.round(finalMetrics.psychologicalSafety)}%</div>
               <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    metrics.psychologicalSafety >= 70 ? 'bg-green-500' :
-                    metrics.psychologicalSafety >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                    finalMetrics.psychologicalSafety >= 70 ? 'bg-green-500' :
+                    finalMetrics.psychologicalSafety >= 40 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${metrics.psychologicalSafety}%` }}
+                  style={{ width: `${finalMetrics.psychologicalSafety}%` }}
                 />
               </div>
             </div>
@@ -61,14 +95,14 @@ export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageC
             {/* Low Issues */}
             <div className="bg-white border-2 border-gray-200 rounded-lg p-4 text-center">
               <div className="text-sm font-medium text-gray-600 mb-2">Issues Avoided</div>
-              <div className="text-3xl font-bold text-gray-900">{Math.round(100 - metrics.legalRisk)}%</div>
+              <div className="text-3xl font-bold text-gray-900">{Math.round(100 - finalMetrics.legalRisk)}%</div>
               <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    metrics.legalRisk <= 30 ? 'bg-green-500' :
-                    metrics.legalRisk <= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                    finalMetrics.legalRisk <= 30 ? 'bg-green-500' :
+                    finalMetrics.legalRisk <= 60 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${100 - metrics.legalRisk}%` }}
+                  style={{ width: `${100 - finalMetrics.legalRisk}%` }}
                 />
               </div>
             </div>
@@ -76,65 +110,116 @@ export default function ScenarioEndModal({ isOpen, onStartNew, metrics, messageC
             {/* Clarity */}
             <div className="bg-white border-2 border-gray-200 rounded-lg p-4 text-center">
               <div className="text-sm font-medium text-gray-600 mb-2">Feedback Clarity</div>
-              <div className="text-3xl font-bold text-gray-900">{Math.round(metrics.clarityOfFeedback)}%</div>
+              <div className="text-3xl font-bold text-gray-900">{Math.round(finalMetrics.clarityOfFeedback)}%</div>
               <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    metrics.clarityOfFeedback >= 70 ? 'bg-green-500' :
-                    metrics.clarityOfFeedback >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                    finalMetrics.clarityOfFeedback >= 70 ? 'bg-green-500' :
+                    finalMetrics.clarityOfFeedback >= 40 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${metrics.clarityOfFeedback}%` }}
+                  style={{ width: `${finalMetrics.clarityOfFeedback}%` }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Key Takeaways */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 mb-3 flex items-center space-x-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-              <span>Key Takeaways</span>
-            </h3>
-            <ul className="space-y-2 text-sm text-blue-900">
-              {metrics.psychologicalSafety >= 70 ? (
-                <li className="flex items-start space-x-2">
-                  <span className="text-green-600">✓</span>
-                  <span>You created a safe environment for the conversation</span>
-                </li>
-              ) : (
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-600">✗</span>
-                  <span>Work on building more psychological safety - the employee may have felt threatened or defensive</span>
-                </li>
-              )}
+          {/* Key Takeaways or Recommendations */}
+          {report?.recommendations && report.recommendations.length > 0 ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="font-semibold text-blue-900 mb-3 flex items-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <span>Coaching Recommendations</span>
+              </h3>
+              <ul className="space-y-2 text-sm text-blue-900">
+                {report.recommendations.map((rec, idx) => (
+                  <li key={idx} className="flex items-start space-x-2">
+                    <span className={rec.includes('CRITICAL') || rec.includes('Work on') ? 'text-red-600' : 'text-blue-600'}>
+                      {rec.includes('CRITICAL') || rec.includes('Work on') ? '!' : '•'}
+                    </span>
+                    <span>{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="font-semibold text-blue-900 mb-3 flex items-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <span>Key Takeaways</span>
+              </h3>
+              <ul className="space-y-2 text-sm text-blue-900">
+                {finalMetrics.psychologicalSafety >= 70 ? (
+                  <li className="flex items-start space-x-2">
+                    <span className="text-green-600">✓</span>
+                    <span>You created a safe environment for the conversation</span>
+                  </li>
+                ) : (
+                  <li className="flex items-start space-x-2">
+                    <span className="text-red-600">✗</span>
+                    <span>Work on building more psychological safety - the employee may have felt threatened or defensive</span>
+                  </li>
+                )}
 
-              {metrics.legalRisk <= 40 ? (
-                <li className="flex items-start space-x-2">
-                  <span className="text-green-600">✓</span>
-                  <span>Your feedback was fair and professional</span>
-                </li>
-              ) : (
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-600">✗</span>
-                  <span>Be mindful of vague or potentially biased language in feedback</span>
-                </li>
-              )}
+                {finalMetrics.legalRisk <= 40 ? (
+                  <li className="flex items-start space-x-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Your feedback was fair and professional</span>
+                  </li>
+                ) : (
+                  <li className="flex items-start space-x-2">
+                    <span className="text-red-600">✗</span>
+                    <span>Be mindful of vague or potentially biased language in feedback</span>
+                  </li>
+                )}
 
-              {metrics.clarityOfFeedback >= 70 ? (
-                <li className="flex items-start space-x-2">
-                  <span className="text-green-600">✓</span>
-                  <span>You provided specific, actionable feedback</span>
-                </li>
-              ) : (
-                <li className="flex items-start space-x-2">
-                  <span className="text-red-600">✗</span>
-                  <span>Try to be more specific with examples and clear expectations</span>
-                </li>
-              )}
-            </ul>
-          </div>
+                {finalMetrics.clarityOfFeedback >= 70 ? (
+                  <li className="flex items-start space-x-2">
+                    <span className="text-green-600">✓</span>
+                    <span>You provided specific, actionable feedback</span>
+                  </li>
+                ) : (
+                  <li className="flex items-start space-x-2">
+                    <span className="text-red-600">✗</span>
+                    <span>Try to be more specific with examples and clear expectations</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* Top Issues / Cringe List */}
+          {report?.topIssues && report.topIssues.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <h3 className="font-semibold text-red-900 mb-3 flex items-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>The Cringe List - Top Issues</span>
+              </h3>
+              <ul className="space-y-3">
+                {report.topIssues.map((issue, idx) => (
+                  <li key={idx} className="text-sm">
+                    <div className="flex items-start space-x-2">
+                      <span className={`font-bold ${
+                        issue.severity === 'high' ? 'text-red-700' :
+                        issue.severity === 'medium' ? 'text-orange-700' : 'text-yellow-700'
+                      }`}>
+                        {issue.severity === 'high' ? '🚨' : issue.severity === 'medium' ? '⚠️' : '💡'}
+                      </span>
+                      <div className="flex-1">
+                        <p className="text-red-900 font-medium">"{issue.managerStatement}"</p>
+                        <p className="text-red-700 text-xs mt-1">{issue.issue}</p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Footer */}

@@ -28,6 +28,31 @@ export interface SimulationState {
   metrics: Metrics;
 }
 
+export interface ScenarioReport {
+  scenarioId: string;
+  scenarioName: string;
+  duration: number;
+  turnCount: number;
+  outcome: 'success' | 'failure' | 'abandoned' | 'in_progress';
+  topIssues: {
+    timestamp: Date;
+    managerStatement: string;
+    issue: string;
+    severity: 'low' | 'medium' | 'high';
+  }[];
+  behavioralAnalysis: {
+    calmMoments: number;
+    triggeredMoments: number;
+    overallTrend: 'improving' | 'stable' | 'declining';
+  };
+  finalMetrics: {
+    psychologicalSafety: number;
+    legalRisk: number;
+    clarityOfFeedback: number;
+  };
+  recommendations: string[];
+}
+
 export interface ScenarioInfo {
   id: string;
   name: string;

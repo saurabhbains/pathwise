@@ -106,7 +106,6 @@ Similar to SBI but adds explicit next steps for improvement.`;
         return 'General feedback best practices: Be specific, actionable, and behavior-focused.';
     }
   }
-  }
 
   parseResponse(llmResponse: string): AgentResponse {
     try {

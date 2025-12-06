@@ -110,12 +110,24 @@ wss.on('connection', (ws) => {
 
       switch (message.type) {
         case 'start_scenario': {
+          // Get the scenario ID from the message, default to performance review
+          const scenarioId = message.scenarioId || 'perf-review-001';
+          const scenario = getScenarioById(scenarioId);
+          
+          if (!scenario) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: `Scenario not found: ${scenarioId}`
+            }));
+            return;
+          }
+
           // Create LLM provider
           const llm = createLLMProvider(config.llmProvider as 'gemini' | 'claude' | 'ollama');
 
           // Create scenario engine
           const engine = new ScenarioEngine(llm);
-          await engine.initialize(performanceReviewScenario, message.context);
+          await engine.initialize(scenario, message.context);
 
           // Store engine for this connection
           activeEngines.set(ws, engine);
@@ -132,7 +144,7 @@ wss.on('connection', (ws) => {
             }
           }));
 
-          logger.info('Scenario started');
+          logger.info('Scenario started', { scenarioId, scenarioName: scenario.name });
           break;
         }
 

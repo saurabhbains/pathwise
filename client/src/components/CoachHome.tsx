@@ -71,32 +71,36 @@ export default function CoachHome() {
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#3D5A80] rounded-full opacity-5 blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
       {/* Header */}
-      <div className="relative bg-white/80 backdrop-blur-sm border-b-2 border-[#98C1D9] shadow-lg">
+      <div className="relative bg-[#3D5A80] border-b-2 border-[#293241] shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform shadow-lg">
-                <span className="text-3xl">🎯</span>
-              </div>
+              <img 
+                src="/pathwiseicon_square.png" 
+                alt="Pathwise" 
+                className="w-16 h-16 rounded-2xl shadow-lg"
+              />
               <div>
-                <h1 className="text-4xl font-black text-[#293241] mb-1 tracking-tight">
-                  Coach Dashboard
-                </h1>
-                <p className="text-[#3D5A80] font-medium">Design the perfect leadership challenge ✨</p>
+                <img 
+                  src="/pathwise_wordmark_white.png" 
+                  alt="Pathwise" 
+                  className="h-10 mb-2"
+                />
+                <p className="text-[#E0FBFC] font-medium">Design the perfect leadership challenge ✨</p>
               </div>
             </div>
             
             {/* Mode Switcher + Create Button */}
             <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-[#E0FBFC] rounded-xl p-1 border-2 border-[#98C1D9]">
+              <div className="flex items-center space-x-2 bg-[#293241] rounded-xl p-1 border-2 border-[#98C1D9]">
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="px-4 py-2 text-[#3D5A80] hover:bg-white rounded-lg font-bold transition-colors"
+                  className="px-4 py-2 text-[#E0FBFC] hover:bg-[#3D5A80] rounded-lg font-bold transition-colors"
                 >
                   🎓 Learner
                 </button>
                 <button
-                  className="px-4 py-2 bg-white text-[#3D5A80] rounded-lg font-bold shadow-md"
+                  className="px-4 py-2 bg-[#98C1D9] text-[#293241] rounded-lg font-bold shadow-md"
                 >
                   👨‍🏫 Coach
                 </button>

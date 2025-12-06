@@ -42,8 +42,43 @@ Respond ONLY with valid JSON:`;
   }
 
   private buildCharacterContext(context: AgentContext): string {
-    // This would come from the scenario's characterBio
-    // For now, default to basic traits
+    // Extract character bio from context if available
+    const characterBio = (context as any).characterBio;
+    
+    if (characterBio) {
+      // Use rich character bio from scenario
+      let contextStr = `YOUR CHARACTER PROFILE:
+Name: ${characterBio.name}
+Role: ${characterBio.role}
+Tenure: ${characterBio.tenure}
+Persona Type: ${characterBio.personaType}
+
+YOUR MOTIVATIONS:
+${characterBio.motivations?.map((m: string) => `- ${m}`).join('\n') || '- Not specified'}
+
+YOUR CURRENT STRESSORS:
+${characterBio.stressors?.map((s: string) => `- ${s}`).join('\n') || '- None specified'}
+
+YOUR COMMUNICATION STYLE: ${characterBio.communicationStyle}
+
+YOUR TRIGGER POINTS (what makes you defensive/upset):
+${characterBio.triggerPoints?.map((t: string) => `- ${t}`).join('\n') || '- Not specified'}
+
+PRIOR FEEDBACK YOU'VE RECEIVED:
+${characterBio.priorFeedback?.map((f: string) => `- ${f}`).join('\n') || '- None'}`;
+
+      if (characterBio.identityDimensions) {
+        contextStr += `\n\nYOUR BACKGROUND: ${characterBio.identityDimensions}`;
+      }
+      
+      if (characterBio.personalCircumstances) {
+        contextStr += `\n\nCURRENT CIRCUMSTANCES: ${characterBio.personalCircumstances}`;
+      }
+
+      return contextStr;
+    }
+    
+    // Fallback to default defensive traits if no character bio
     return `YOUR CHARACTER TRAITS:
 - Defensive and resistant to negative feedback
 - Blame-deflecting (blame others, circumstances, or the system)
