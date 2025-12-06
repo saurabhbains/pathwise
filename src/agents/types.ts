@@ -18,6 +18,13 @@ export interface ShadowThought {
   thought: string;
   timestamp: Date;
   flags?: string[]; // HR flags like "bias", "legal-risk", etc.
+  frameworkAssessment?: {
+    framework: string;
+    elements_present: string[];
+    elements_missing: string[];
+    overall_score: number;
+  };
+  suggestedRewrite?: string; // Framework-aligned rewrite suggestion
 }
 
 export interface AgentContext {

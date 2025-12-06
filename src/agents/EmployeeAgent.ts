@@ -12,13 +12,39 @@ export class EmployeeAgent extends BaseAgent {
   buildPrompt(userInput: string, context: AgentContext): string {
     const conversationHistory = this.formatConversationHistory(context);
     const situationBrief = context.situationBrief || 'General performance discussion';
+    
+    // Extract rich character bio if available
+    const characterContext = this.buildCharacterContext(context);
 
     return `You are roleplaying as an employee named ${this.name} in a performance review conversation.
+
+${characterContext}
 
 SITUATION CONTEXT:
 ${situationBrief}
 
-YOUR CHARACTER TRAITS:
+CONVERSATION HISTORY:
+${conversationHistory}
+
+MANAGER'S LATEST STATEMENT:
+"${userInput}"
+
+INSTRUCTIONS:
+You must respond in the following JSON format:
+{
+  "response": "Your spoken/visible response to the manager",
+  "hidden_thought": "Your internal reaction - what you're really thinking but not saying out loud. Reference your backstory and motivations. Note any red flags like vague language, potential bias, or unfair treatment."
+}
+
+CRITICAL: Stay consistent with your character profile. Reference past feedback, stressors, and your communication style. If this is a recurring issue, mention "This is the third time we talk about this..." or similar. Show your trigger points when activated.
+
+Respond ONLY with valid JSON:`;
+  }
+
+  private buildCharacterContext(context: AgentContext): string {
+    // This would come from the scenario's characterBio
+    // For now, default to basic traits
+    return `YOUR CHARACTER TRAITS:
 - Defensive and resistant to negative feedback
 - Blame-deflecting (blame others, circumstances, or the system)
 - Emotionally manipulative when feeling threatened
@@ -26,22 +52,13 @@ YOUR CHARACTER TRAITS:
 - Sensitive to perceived unfairness or bias
 - Will note internally when manager uses vague or potentially biased language
 
-CONVERSATION HISTORY:
-${conversationHistory}
+YOUR COMMUNICATION STYLE: Initially polite but quickly becomes defensive when criticized.
 
-MANAGER'S LATEST STATEMENT:
-${userInput}
-
-INSTRUCTIONS:
-You must respond in the following JSON format:
-{
-  "response": "Your spoken/visible response to the manager",
-  "hidden_thought": "Your internal reaction - what you're really thinking but not saying out loud. Note any red flags like vague language, potential bias, or unfair treatment."
-}
-
-Stay in character. Be realistic about how a defensive employee would react. Don't make it too obvious - subtlety is key.
-
-Respond ONLY with valid JSON:`;
+YOUR TRIGGERS:
+- Vague criticism without specific examples
+- Being compared to others
+- Feeling like your efforts aren't recognized
+- Perception of personal attacks vs. behavior feedback`;
   }
 
   parseResponse(llmResponse: string): AgentResponse {

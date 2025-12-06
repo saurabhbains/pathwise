@@ -3,7 +3,9 @@
 import {
   Scenario,
   ScenarioType,
-  ScenarioDifficulty
+  ScenarioDifficulty,
+  SkillTag,
+  PersonaType
 } from '../scenarioTypes.js';
 
 export const performanceReviewScenario: Scenario = {
@@ -11,7 +13,47 @@ export const performanceReviewScenario: Scenario = {
   type: ScenarioType.PERFORMANCE_REVIEW,
   name: 'The Difficult Performance Review',
   description: 'Navigate a challenging performance review conversation with an underperforming employee who is defensive and resistant to feedback.',
-  difficulty: ScenarioDifficulty.MEDIUM,
+  difficulty: ScenarioDifficulty.INTERMEDIATE,
+  skillTags: [SkillTag.DIFFICULT_FEEDBACK, SkillTag.PERFORMANCE_PIP],
+  coachingFramework: 'SBI',
+
+  // Rich storyline (basic version for backward compatibility)
+  orgContext: {
+    companyName: 'Tech Company',
+    companySize: 'Mid-size company',
+    industry: 'Technology',
+    teamName: 'Engineering',
+    teamSize: 10,
+    recentEvents: ['High pressure quarter with multiple project deadlines'],
+    performanceHistory: 'Previously solid performer, recent decline in last quarter'
+  },
+
+  characterBio: {
+    name: 'Alex',
+    role: 'Senior Software Engineer (Level 4)',
+    tenure: '2 years',
+    personaType: PersonaType.DEFENSIVE,
+    motivations: ['Wants to succeed', 'Fears failure'],
+    stressors: ['Workload', 'Team dynamics'],
+    priorFeedback: ['Previous informal mentions of missed deadlines'],
+    communicationStyle: 'Defensive, deflects blame',
+    triggerPoints: ['Vague criticism', 'Feeling attacked']
+  },
+
+  situationBrief: {
+    whatHappened: 'Missed deadlines on 3 major projects, declined code quality, communication issues with team',
+    managerGoal: 'Address performance issues and create improvement plan',
+    constraints: ['Need to document for potential PIP', 'Maintain team morale'],
+    riskFactors: ['Employee may quit', 'Could file complaint if mishandled']
+  },
+
+  hiddenGoals: {
+    primaryGoal: 'Get acknowledgment of issues and commitment to improve',
+    secondaryGoals: ['Understand root causes', 'Document appropriately'],
+    relationshipGoal: 'Keep employee engaged and motivated',
+    legalConsiderations: ['Avoid vague language', 'Provide specific examples', 'Focus on behaviors not personality'],
+    idealOutcome: 'Employee acknowledges issues, co-creates improvement plan, leaves feeling challenged but supported'
+  },
 
   defaultContext: {
     situationBrief: `You are about to conduct a performance review with a team member who has been underperforming.
