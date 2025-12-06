@@ -77,7 +77,7 @@ export default function ScenarioBriefing({
         <div className="space-y-6">
           {/* Scenario Overview */}
           <div className="bg-gradient-to-r from-primary-50 to-blue-50 border-l-4 border-primary-600 p-6 rounded-r-lg">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{scenarioName}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{characterBio.name}</h3>
             <p className="text-gray-700">{description}</p>
           </div>
 
