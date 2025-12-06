@@ -68,6 +68,7 @@ export default function ScenarioConfigurator() {
   const [activeTab, setActiveTab] = useState<'character' | 'situation' | 'goals'>('character');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [difficultyLevel, setDifficultyLevel] = useState(1);
 
   useEffect(() => {
     fetchScenario();
@@ -78,6 +79,10 @@ export default function ScenarioConfigurator() {
       const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
       const data = await response.json();
       setConfig(data);
+      // Initialize difficulty level from config
+      if (data.difficulty === 'novice') setDifficultyLevel(1);
+      else if (data.difficulty === 'intermediate') setDifficultyLevel(3);
+      else setDifficultyLevel(5);
     } catch (error) {
       console.error('Failed to fetch scenario:', error);
     } finally {
@@ -196,50 +201,43 @@ export default function ScenarioConfigurator() {
         {activeTab === 'character' && (
           <div className="space-y-6 animate-fade-in">
             {/* Difficulty Slider */}
-            <div className="bg-gradient-to-r from-[#3D5A80] to-[#98C1D9] rounded-3xl shadow-xl p-8">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-black text-white flex items-center space-x-3">
-                  <span className="text-3xl">📊</span>
-                  <span>Difficulty Level</span>
-                </h3>
-                <div className="bg-white/20 px-4 py-2 rounded-full">
-                  <span className="text-white font-black text-lg">
-                    {config.difficulty === 'novice' ? '1' : config.difficulty === 'intermediate' ? '3' : '5'} / 5
-                  </span>
+            <div className="bg-white rounded-2xl shadow-lg border-2 border-[#98C1D9] p-5 max-w-sm">
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="text-lg">📊</span>
+                <h3 className="text-xs font-black text-[#293241] uppercase tracking-wide">Difficulty</h3>
+                <div className="bg-[#3D5A80] px-2 py-0.5 rounded-full">
+                  <span className="text-white font-bold text-xs">{difficultyLevel} / 5</span>
                 </div>
               </div>
               
-              <div className="relative">
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={config.difficulty === 'novice' ? 1 : config.difficulty === 'intermediate' ? 3 : 5}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    let difficulty: 'novice' | 'intermediate' | 'advanced';
-                    if (val <= 2) difficulty = 'novice';
-                    else if (val <= 4) difficulty = 'intermediate';
-                    else difficulty = 'advanced';
-                    setConfig({ ...config, difficulty });
-                  }}
-                  className="w-full h-3 bg-white/30 rounded-full appearance-none cursor-pointer slider-thumb"
-                  style={{
-                    background: `linear-gradient(to right, #10B981 0%, #F59E0B 50%, #EF4444 100%)`
-                  }}
-                />
-                <div className="flex justify-between mt-3 text-white/80 text-sm font-bold">
-                  <span>🌱 Easy</span>
-                  <span>🔥 Medium</span>
-                  <span>💎 Hard</span>
-                </div>
+              <div className="flex items-center space-x-1.5">
+                {[1, 2, 3, 4, 5].map((level) => {
+                  const isSelected = level <= difficultyLevel;
+                  return (
+                    <button
+                      key={level}
+                      onClick={() => {
+                        setDifficultyLevel(level);
+                        let difficulty: 'novice' | 'intermediate' | 'advanced';
+                        if (level <= 2) difficulty = 'novice';
+                        else if (level <= 4) difficulty = 'intermediate';
+                        else difficulty = 'advanced';
+                        setConfig({ ...config, difficulty });
+                      }}
+                      className={`flex-1 h-2.5 rounded-full transition-all hover:scale-y-150 cursor-pointer ${
+                        isSelected 
+                          ? level <= 2 ? 'bg-green-500' : level <= 4 ? 'bg-yellow-500' : 'bg-red-500'
+                          : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                    />
+                  );
+                })}
               </div>
               
-              <p className="text-white/70 text-sm mt-4">
-                {config.difficulty === 'novice' && '✨ Great for beginners - straightforward conversation with clear objectives'}
-                {config.difficulty === 'intermediate' && '⚡ Moderate challenge - requires nuanced communication skills'}
-                {config.difficulty === 'advanced' && '🎯 Expert level - complex dynamics, high stakes, requires advanced skills'}
-              </p>
+              <div className="flex justify-between mt-1.5 text-[10px] text-[#3D5A80] font-semibold">
+                <span>Easy</span>
+                <span>Hard</span>
+              </div>
             </div>
 
             {/* Character Identity */}
