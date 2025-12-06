@@ -85,15 +85,33 @@ export default function CoachHome() {
                 <p className="text-[#3D5A80] font-medium">Design the perfect leadership challenge ✨</p>
               </div>
             </div>
-            <button
-              onClick={() => window.location.href = '/coach/create'}
-              className="group px-8 py-4 bg-gradient-to-r from-[#EE6C4D] to-[#ff8a73] hover:from-[#ff8a73] hover:to-[#EE6C4D] text-white rounded-2xl font-bold transition-all transform hover:scale-105 hover:-rotate-1 shadow-xl hover:shadow-2xl flex items-center space-x-3"
-            >
-              <svg className="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
-              </svg>
-              <span className="text-lg">Create Scenario</span>
-            </button>
+            
+            {/* Mode Switcher + Create Button */}
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 bg-[#E0FBFC] rounded-xl p-1 border-2 border-[#98C1D9]">
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="px-4 py-2 text-[#3D5A80] hover:bg-white rounded-lg font-bold transition-colors"
+                >
+                  🎓 Learner
+                </button>
+                <button
+                  className="px-4 py-2 bg-white text-[#3D5A80] rounded-lg font-bold shadow-md"
+                >
+                  👨‍🏫 Coach
+                </button>
+              </div>
+              
+              <button
+                onClick={() => window.location.href = '/coach/create'}
+                className="group px-8 py-4 bg-gradient-to-r from-[#EE6C4D] to-[#ff8a73] hover:from-[#ff8a73] hover:to-[#EE6C4D] text-white rounded-2xl font-bold transition-all transform hover:scale-105 hover:-rotate-1 shadow-xl hover:shadow-2xl flex items-center space-x-3"
+              >
+                <svg className="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-lg">Create Scenario</span>
+              </button>
+            </div>
           </div>
 
           {/* Fun Stats Row */}

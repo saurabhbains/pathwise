@@ -99,21 +99,32 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Scenario Library</h1>
-              <p className="text-lg text-gray-600">Choose your adventure in difficult conversations</p>
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform shadow-lg">
+                <span className="text-3xl">🎯</span>
+              </div>
+              <div>
+                <h1 className="text-4xl font-black text-[#293241] mb-1 tracking-tight">Scenario Library</h1>
+                <p className="text-lg text-[#3D5A80] font-medium">Choose your adventure in difficult conversations</p>
+              </div>
             </div>
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back</span>
-              </button>
-            )}
+            
+            {/* Mode Switcher */}
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 bg-[#E0FBFC] rounded-xl p-1 border-2 border-[#98C1D9]">
+                <button
+                  className="px-4 py-2 bg-white text-[#3D5A80] rounded-lg font-bold shadow-md"
+                >
+                  🎓 Learner
+                </button>
+                <button
+                  onClick={() => window.location.href = '/coach'}
+                  className="px-4 py-2 text-[#3D5A80] hover:bg-white rounded-lg font-bold transition-colors"
+                >
+                  👨‍🏫 Coach
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Skill Filter Pills */}
