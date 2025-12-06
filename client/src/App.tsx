@@ -10,6 +10,7 @@ import ScenarioConfigurator from './components/ScenarioConfigurator';
 import ScenarioSelector from './components/ScenarioSelector';
 import ScenarioBriefing from './components/ScenarioBriefing';
 import PracticeHistory from './components/PracticeHistory';
+import ScenarioAnalytics from './components/ScenarioAnalytics';
 import { useWebSocket } from './hooks/useWebSocket';
 import type { Message, ShadowThought, Metrics } from './types';
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/coach/client/:clientId" element={<ClientScenarios />} />
         <Route path="/coach/scenario/:id/configure" element={<ScenarioConfigurator />} />
         <Route path="/coach/scenario/:id/test" element={<SimulationView />} />
+        <Route path="/coach/scenario/:id/analytics" element={<ScenarioAnalytics />} />
       </Routes>
     </BrowserRouter>
   );
