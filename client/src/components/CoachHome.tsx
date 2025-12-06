@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface ScenarioCard {
   id: string;
@@ -16,7 +15,6 @@ interface ScenarioCard {
 }
 
 export default function CoachHome() {
-  const navigate = useNavigate();
   const [scenarios, setScenarios] = useState<ScenarioCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'all' | 'library' | 'custom'>('all');
@@ -33,8 +31,8 @@ export default function CoachHome() {
       setScenarios(data.scenarios.map((s: any) => ({
         ...s,
         personaType: s.personaType || 'defensive',
-        timesRun: Math.floor(Math.random() * 50), // Mock data
-        avgScore: Math.floor(Math.random() * 40) + 50 // Mock data
+        timesRun: Math.floor(Math.random() * 50),
+        avgScore: Math.floor(Math.random() * 40) + 50
       })));
     } catch (error) {
       console.error('Failed to fetch scenarios:', error);
@@ -50,255 +48,221 @@ export default function CoachHome() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'novice': return 'bg-green-100 text-green-800 border-green-300';
-      case 'intermediate': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'advanced': return 'bg-red-100 text-red-800 border-red-300';
+      case 'novice': return 'bg-green-100 text-green-700 border-green-300';
+      case 'intermediate': return 'bg-[#E0FBFC] text-[#3D5A80] border-[#98C1D9]';
+      case 'advanced': return 'bg-[#EE6C4D] bg-opacity-20 text-[#EE6C4D] border-[#EE6C4D]';
       default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
   };
 
-  const getPersonaColor = (persona: string) => {
-    switch (persona) {
-      case 'defensive': return 'bg-orange-100 text-orange-800';
-      case 'checked_out': return 'bg-blue-100 text-blue-800';
-      case 'high_performer': return 'bg-purple-100 text-purple-800';
-      case 'hostile': return 'bg-red-100 text-red-800';
-      case 'overwhelmed': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const getDifficultyEmoji = (difficulty: string) => {
+    switch (difficulty) {
+      case 'novice': return '🌱';
+      case 'intermediate': return '🔥';
+      case 'advanced': return '💎';
+      default: return '⭐';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] via-white to-[#98C1D9] relative overflow-hidden">
+      {/* Playful Background Decorations */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#EE6C4D] rounded-full opacity-10 blur-3xl -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#3D5A80] rounded-full opacity-5 blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">Coach Dashboard</h1>
-              <p className="text-gray-600">Configure, test, and manage your simulation scenarios</p>
+      <div className="relative bg-white/80 backdrop-blur-sm border-b-2 border-[#98C1D9] shadow-lg">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform shadow-lg">
+                <span className="text-3xl">🎯</span>
+              </div>
+              <div>
+                <h1 className="text-4xl font-black text-[#293241] mb-1 tracking-tight">
+                  Coach Dashboard
+                </h1>
+                <p className="text-[#3D5A80] font-medium">Design the perfect leadership challenge ✨</p>
+              </div>
             </div>
             <button
-              onClick={() => navigate('/coach/create')}
-              className="px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all flex items-center space-x-2 shadow-lg"
+              onClick={() => window.location.href = '/coach/create'}
+              className="group px-8 py-4 bg-gradient-to-r from-[#EE6C4D] to-[#ff8a73] hover:from-[#ff8a73] hover:to-[#EE6C4D] text-white rounded-2xl font-bold transition-all transform hover:scale-105 hover:-rotate-1 shadow-xl hover:shadow-2xl flex items-center space-x-3"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              <svg className="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" />
               </svg>
-              <span>Create Custom Scenario</span>
+              <span className="text-lg">Create Scenario</span>
             </button>
           </div>
 
-          {/* Stats Row */}
+          {/* Fun Stats Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-blue-700 font-medium">Total Scenarios</p>
-                  <p className="text-2xl font-bold text-blue-900">{scenarios.length}</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-green-700 font-medium">Total Runs</p>
-                  <p className="text-2xl font-bold text-green-900">
-                    {scenarios.reduce((sum, s) => sum + s.timesRun, 0)}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+            {[
+              { label: 'Total Scenarios', value: scenarios.length, emoji: '📚', color: 'from-[#3D5A80] to-[#98C1D9]' },
+              { label: 'Total Runs', value: scenarios.reduce((sum, s) => sum + s.timesRun, 0), emoji: '⚡', color: 'from-[#98C1D9] to-[#E0FBFC]' },
+              { label: 'Avg Score', value: `${Math.round(scenarios.reduce((sum, s) => sum + s.avgScore, 0) / scenarios.length || 0)}%`, emoji: '🎯', color: 'from-[#EE6C4D] to-[#ff8a73]' },
+              { label: 'Active Learners', value: '12', emoji: '👥', color: 'from-[#98C1D9] to-[#3D5A80]' }
+            ].map((stat, idx) => (
+              <div
+                key={idx}
+                className="group relative bg-white rounded-2xl p-5 shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-1 hover:scale-105 border-2 border-transparent hover:border-[#98C1D9] cursor-pointer overflow-hidden"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                <div className="relative flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-[#3D5A80] uppercase tracking-wide">{stat.label}</p>
+                    <p className="text-3xl font-black text-[#293241] mt-1">{stat.value}</p>
+                  </div>
+                  <div className="text-5xl transform group-hover:scale-125 group-hover:rotate-12 transition-transform">
+                    {stat.emoji}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-purple-700 font-medium">Avg Performance</p>
-                  <p className="text-2xl font-bold text-purple-900">
-                    {Math.round(scenarios.reduce((sum, s) => sum + s.avgScore, 0) / scenarios.length || 0)}%
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-orange-700 font-medium">Active Learners</p>
-                  <p className="text-2xl font-bold text-orange-900">12</p>
-                </div>
-                <div className="w-12 h-12 bg-orange-200 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          {/* Search and Filters */}
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Search scenarios..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-
-            <div className="flex bg-white border border-gray-300 rounded-lg overflow-hidden">
-              <button
-                onClick={() => setView('all')}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
-                  view === 'all' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                All Scenarios
-              </button>
-              <button
-                onClick={() => setView('library')}
-                className={`px-4 py-3 text-sm font-medium transition-colors border-l border-gray-300 ${
-                  view === 'library' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                Library
-              </button>
-              <button
-                onClick={() => setView('custom')}
-                className={`px-4 py-3 text-sm font-medium transition-colors border-l border-gray-300 ${
-                  view === 'custom' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                Custom
-              </button>
-            </div>
+          {/* Search Bar */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search scenarios... 🔍"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-6 py-4 pl-14 text-lg border-3 border-[#98C1D9] rounded-2xl focus:outline-none focus:ring-4 focus:ring-[#98C1D9] focus:ring-opacity-30 focus:border-[#3D5A80] transition-all shadow-lg bg-white"
+            />
+            <svg className="w-6 h-6 text-[#3D5A80] absolute left-5 top-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {loading ? (
           <div className="text-center py-16">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            <p className="mt-4 text-gray-600">Loading scenarios...</p>
+            <div className="inline-block relative">
+              <div className="w-20 h-20 border-8 border-[#98C1D9] border-t-[#EE6C4D] rounded-full animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center text-3xl animate-pulse">
+                🎯
+              </div>
+            </div>
+            <p className="mt-6 text-xl font-bold text-[#3D5A80]">Loading your scenarios...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {filteredScenarios.map((scenario) => (
+            {filteredScenarios.map((scenario, idx) => (
               <div
                 key={scenario.id}
-                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-primary-400 overflow-hidden"
+                className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border-3 border-[#E0FBFC] hover:border-[#98C1D9] overflow-hidden transform hover:-translate-y-2"
+                style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="flex">
-                  {/* Left: Scenario Info */}
-                  <div className="flex-1 p-6">
-                    <div className="flex items-start justify-between mb-3">
+                <div className="flex flex-col md:flex-row">
+                  {/* Left: Character Avatar & Info */}
+                  <div className="md:w-1/4 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-10">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                    </div>
+                    
+                    <div className="relative w-24 h-24 bg-gradient-to-br from-[#EE6C4D] to-[#ff8a73] rounded-full flex items-center justify-center text-white text-4xl font-black shadow-2xl transform group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-white">
+                      {scenario.characterName.charAt(0)}
+                    </div>
+                    
+                    <h3 className="mt-4 text-xl font-black text-white text-center">{scenario.characterName}</h3>
+                    <p className="text-sm text-[#E0FBFC] text-center">{scenario.characterRole}</p>
+                    
+                    <div className="mt-4 flex items-center space-x-2">
+                      <span className={`px-4 py-2 rounded-full text-xs font-bold border-2 ${getDifficultyColor(scenario.difficulty)} flex items-center space-x-1 shadow-lg`}>
+                        <span>{getDifficultyEmoji(scenario.difficulty)}</span>
+                        <span>{scenario.difficulty.toUpperCase()}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Middle: Scenario Details */}
+                  <div className="flex-1 p-8">
+                    <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{scenario.name}</h3>
-                        <p className="text-sm text-gray-600 leading-relaxed mb-3">{scenario.description}</p>
-                        
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-2 mb-3">
-                          <span className={`text-xs px-3 py-1 rounded-full font-bold border ${getDifficultyColor(scenario.difficulty)}`}>
-                            {scenario.difficulty.toUpperCase()}
-                          </span>
-                          <span className={`text-xs px-3 py-1 rounded-full font-medium ${getPersonaColor(scenario.personaType)}`}>
-                            {scenario.personaType.replace(/_/g, ' ')}
-                          </span>
-                          {scenario.skillTags.slice(0, 3).map((tag, idx) => (
-                            <span key={idx} className="text-xs px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
-                              {tag.replace(/_/g, ' ')}
-                            </span>
-                          ))}
-                        </div>
+                        <h3 className="text-2xl font-black text-[#293241] mb-2 group-hover:text-[#3D5A80] transition-colors">
+                          {scenario.name}
+                        </h3>
+                        <p className="text-[#3D5A80] leading-relaxed">{scenario.description}</p>
                       </div>
                     </div>
 
-                    {/* Character Preview */}
-                    <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold">
-                        {scenario.characterName.charAt(0)}
+                    {/* Skill Tags */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {scenario.skillTags.slice(0, 4).map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-gradient-to-r from-[#E0FBFC] to-[#98C1D9] text-[#3D5A80] rounded-full text-xs font-bold border-2 border-[#98C1D9] hover:scale-105 transition-transform cursor-pointer"
+                        >
+                          {tag.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex items-center space-x-6 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">📊</span>
+                        <span className="text-[#3D5A80] font-semibold">{scenario.timesRun} runs</span>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">{scenario.characterName}</p>
-                        <p className="text-xs text-gray-600">{scenario.characterRole}</p>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">🎯</span>
+                        <span className="text-[#3D5A80] font-semibold">{scenario.avgScore}% avg</span>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">Runs: {scenario.timesRun}</p>
-                        <p className="text-xs text-gray-500">Avg: {scenario.avgScore}%</p>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">⏱️</span>
+                        <span className="text-[#3D5A80] font-semibold">{scenario.estimatedTime}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Right: Actions */}
-                  <div className="w-64 bg-gradient-to-br from-gray-50 to-gray-100 border-l border-gray-200 p-6 flex flex-col justify-between">
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => navigate(`/coach/scenario/${scenario.id}/configure`)}
-                        className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span>Configure</span>
-                      </button>
+                  <div className="md:w-64 bg-gradient-to-br from-[#E0FBFC] to-white p-6 border-l-2 border-[#98C1D9] flex flex-col space-y-3">
+                    <button
+                      onClick={() => window.location.href = `/coach/scenario/${scenario.id}/configure`}
+                      className="w-full py-3 px-4 bg-white hover:bg-[#E0FBFC] text-[#3D5A80] border-2 border-[#3D5A80] rounded-xl font-bold transition-all transform hover:scale-105 hover:-rotate-1 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Configure</span>
+                    </button>
 
-                      <button
-                        onClick={() => navigate(`/coach/scenario/${scenario.id}/test`)}
-                        className="w-full py-2.5 px-4 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Test Run</span>
-                      </button>
+                    <button
+                      onClick={() => window.location.href = `/coach/scenario/${scenario.id}/test`}
+                      className="w-full py-3 px-4 bg-gradient-to-r from-[#EE6C4D] to-[#ff8a73] hover:from-[#ff8a73] hover:to-[#EE6C4D] text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Test Run</span>
+                    </button>
 
-                      <button
-                        onClick={() => navigate(`/coach/scenario/${scenario.id}/analytics`)}
-                        className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                        <span>Analytics</span>
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => window.location.href = `/coach/scenario/${scenario.id}/analytics`}
+                      className="w-full py-3 px-4 bg-white hover:bg-[#98C1D9] text-[#3D5A80] hover:text-white border-2 border-[#98C1D9] rounded-xl font-bold transition-all transform hover:scale-105 hover:rotate-1 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      <span>Analytics</span>
+                    </button>
 
-                    <div className="mt-4 pt-4 border-t border-gray-300">
-                      <p className="text-xs text-gray-500 mb-2">Quick Actions</p>
-                      <div className="space-y-2">
-                        <button className="w-full text-xs py-2 text-gray-700 hover:text-primary-600 transition-colors text-left">
+                    <div className="pt-3 mt-3 border-t-2 border-[#98C1D9]">
+                      <p className="text-xs font-bold text-[#3D5A80] mb-2 uppercase tracking-wide">Quick Actions</p>
+                      <div className="space-y-1">
+                        <button className="w-full text-xs py-2 text-[#3D5A80] hover:text-[#EE6C4D] hover:bg-white rounded-lg transition-all text-left px-2 font-semibold">
                           📋 Duplicate
                         </button>
-                        <button className="w-full text-xs py-2 text-gray-700 hover:text-primary-600 transition-colors text-left">
+                        <button className="w-full text-xs py-2 text-[#3D5A80] hover:text-[#EE6C4D] hover:bg-white rounded-lg transition-all text-left px-2 font-semibold">
                           📤 Export
-                        </button>
-                        <button className="w-full text-xs py-2 text-gray-700 hover:text-red-600 transition-colors text-left">
-                          🗑️ Archive
                         </button>
                       </div>
                     </div>
@@ -311,11 +275,9 @@ export default function CoachHome() {
 
         {filteredScenarios.length === 0 && !loading && (
           <div className="text-center py-16">
-            <svg className="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-lg text-gray-600 mb-2">No scenarios found</p>
-            <p className="text-sm text-gray-500">Try adjusting your search or create a new scenario</p>
+            <div className="text-8xl mb-4 animate-bounce">🤔</div>
+            <p className="text-2xl font-black text-[#293241] mb-2">No scenarios found</p>
+            <p className="text-[#3D5A80]">Try adjusting your search or create a new one!</p>
           </div>
         )}
       </div>

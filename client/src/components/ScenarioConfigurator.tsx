@@ -110,23 +110,26 @@ export default function ScenarioConfigurator() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] via-white to-[#98C1D9] relative overflow-hidden">
+      {/* Playful Background */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#EE6C4D] rounded-full opacity-10 blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#3D5A80] rounded-full opacity-5 blur-3xl"></div>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="relative bg-white/90 backdrop-blur-sm border-b-3 border-[#98C1D9] shadow-xl sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/coach')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="group p-3 hover:bg-[#E0FBFC] rounded-xl transition-all transform hover:scale-110 hover:-rotate-6"
               >
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg className="w-6 h-6 text-[#3D5A80] group-hover:text-[#EE6C4D] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{config.name}</h1>
-                <p className="text-sm text-gray-600">Configure scenario personalities and prompt levers</p>
+                <h1 className="text-3xl font-black text-[#293241]">{config.name}</h1>
+                <p className="text-sm text-[#3D5A80] font-semibold">🎨 Tweak personalities & prompt levers</p>
               </div>
             </div>
             
@@ -134,53 +137,54 @@ export default function ScenarioConfigurator() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-6 py-2.5 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 rounded-lg font-medium transition-colors flex items-center space-x-2 disabled:opacity-50"
+                className="px-6 py-3 bg-white hover:bg-[#E0FBFC] text-[#3D5A80] border-2 border-[#3D5A80] rounded-xl font-bold transition-all transform hover:scale-105 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center space-x-2"
               >
                 {saving ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-3 border-[#3D5A80] border-t-transparent rounded-full animate-spin"></div>
                     <span>Saving...</span>
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                     </svg>
-                    <span>Save Changes</span>
+                    <span>Save</span>
                   </>
                 )}
               </button>
               
               <button
                 onClick={handleTestRun}
-                className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all flex items-center space-x-2 shadow-lg"
+                className="px-8 py-3 bg-gradient-to-r from-[#EE6C4D] to-[#ff8a73] hover:from-[#ff8a73] hover:to-[#EE6C4D] text-white rounded-xl font-black transition-all transform hover:scale-110 hover:-rotate-1 shadow-xl hover:shadow-2xl flex items-center space-x-2 text-lg"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Test Run</span>
+                <span>Test Run!</span>
               </button>
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex space-x-1 mt-4 border-b border-gray-200">
+          <div className="flex space-x-2 mt-6 border-b-2 border-[#98C1D9]">
             {[
-              { key: 'character', label: '👤 Character Personality', icon: '🎭' },
-              { key: 'situation', label: '📋 Situation & Context', icon: '📋' },
-              { key: 'goals', label: '🎯 Goals & Outcomes', icon: '🎯' },
-              { key: 'criteria', label: '✅ Success Criteria', icon: '✅' }
+              { key: 'character', label: 'Character Personality', icon: '🎭' },
+              { key: 'situation', label: 'Situation & Context', icon: '📋' },
+              { key: 'goals', label: 'Goals & Outcomes', icon: '🎯' },
+              { key: 'criteria', label: 'Success Criteria', icon: '✅' }
             ].map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 ${
+                className={`px-6 py-3 text-sm font-black transition-all border-b-4 transform hover:scale-105 ${
                   activeTab === tab.key
-                    ? 'border-primary-600 text-primary-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
-                }`}
+                    ? 'border-[#EE6C4D] text-[#EE6C4D] bg-[#EE6C4D] bg-opacity-10'
+                    : 'border-transparent text-[#3D5A80] hover:text-[#EE6C4D] hover:bg-[#E0FBFC]'
+                } rounded-t-xl`}
               >
+                <span className="mr-2">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
@@ -189,13 +193,13 @@ export default function ScenarioConfigurator() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {activeTab === 'character' && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in">
             {/* Character Identity */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
-                <span>🎭</span>
+            <div className="bg-white rounded-3xl shadow-xl border-3 border-[#98C1D9] p-8 transform hover:scale-[1.01] transition-all">
+              <h3 className="text-2xl font-black text-[#293241] mb-6 flex items-center space-x-3">
+                <span className="text-4xl">🎭</span>
                 <span>Character Identity & Persona</span>
               </h3>
               
