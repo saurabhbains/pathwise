@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .metric-card {
+    @apply bg-white rounded-lg shadow p-4;
+  }
+
+  .message-bubble {
+    @apply rounded-lg px-4 py-2 max-w-[80%] break-words;
+  }
+
+  .shadow-thought {
+    @apply text-sm bg-gray-100 rounded p-3 border-l-4;
+  }
+}

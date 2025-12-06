@@ -1,0 +1,110 @@
+import { useState, useRef, useEffect } from 'react';
+import type { Message } from '../types';
+
+interface ChatInterfaceProps {
+  messages: Message[];
+  onSendMessage: (content: string) => void;
+  isLoading: boolean;
+}
+
+export default function ChatInterface({ messages, onSendMessage, isLoading }: ChatInterfaceProps) {
+  const [inputValue, setInputValue] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim() && !isLoading) {
+      onSendMessage(inputValue.trim());
+      setInputValue('');
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-white">
+      {/* Chat Header */}
+      <div className="bg-primary-600 text-white px-6 py-4 shadow-sm">
+        <h2 className="text-lg font-semibold">Performance Review Simulation</h2>
+        <p className="text-sm text-primary-100">Practice your feedback delivery</p>
+      </div>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        {messages.length === 0 ? (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              <p className="text-lg font-medium">Start the conversation</p>
+              <p className="text-sm mt-2">Begin the performance review with your employee</p>
+            </div>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'manager' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className="flex flex-col max-w-[80%]">
+                <div
+                  className={`message-bubble ${
+                    message.role === 'manager'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-200 text-gray-900'
+                  }`}
+                >
+                  {message.content}
+                </div>
+                <span className="text-xs text-gray-500 mt-1 px-2">
+                  {message.role === 'manager' ? 'You' : 'Alex'} • {new Date(message.timestamp).toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-200 rounded-lg px-4 py-3 flex items-center space-x-2">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+              <span className="text-sm text-gray-600">Alex is typing...</span>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
+        <form onSubmit={handleSubmit} className="flex space-x-3">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Type your message..."
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+          />
+          <button
+            type="submit"
+            disabled={!inputValue.trim() || isLoading}
+            className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            Send
+          </button>
+        </form>
+        <p className="text-xs text-gray-500 mt-2">
+          Tip: Be specific with examples and focus on behaviors, not personality
+        </p>
+      </div>
+    </div>
+  );
+}

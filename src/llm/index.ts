@@ -6,6 +6,7 @@ import { OllamaAdapter } from './ollamaAdapter.js';
 
 export interface LLMProvider {
   generate(prompt: string): Promise<string>;
+  generateStreaming?(prompt: string, onChunk: (chunk: string) => void): Promise<void>;
 }
 
 export type LLMProviderType = 'claude' | 'gemini' | 'ollama';
