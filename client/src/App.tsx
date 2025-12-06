@@ -37,15 +37,8 @@ function App() {
     error
   } = useWebSocket();
 
-  // Auto-start scenario when WebSocket connects
-  useEffect(() => {
-    console.log('Auto-start check:', { isConnected, scenarioStarted });
-    if (isConnected && !scenarioStarted) {
-      console.log('Starting scenario...');
-      startScenario();
-      setScenarioStarted(true);
-    }
-  }, [isConnected, scenarioStarted, startScenario]);
+  // Auto-start is now handled directly in useWebSocket hook
+  // No need for this useEffect anymore
 
   // Handle employee response
   useEffect(() => {
