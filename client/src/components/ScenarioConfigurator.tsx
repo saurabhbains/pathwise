@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { config } from '../config';
+import { config as appConfig } from '../config';
 
 interface ScenarioConfig {
   // Basic Info
@@ -77,7 +77,7 @@ export default function ScenarioConfigurator() {
 
   const fetchScenario = async () => {
     try {
-      const response = await fetch(`${config.apiUrl}/api/scenarios/${id}`);
+      const response = await fetch(`${appConfig.apiUrl}/api/scenarios/${id}`);
       const data = await response.json();
       setConfig(data);
       // Initialize difficulty level from config
