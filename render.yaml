@@ -4,7 +4,6 @@ services:
     name: pathwise-api
     runtime: node
     region: oregon
-    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
@@ -15,10 +14,8 @@ services:
     healthCheckPath: /health
 
   # Frontend React App
-  - type: web
+  - type: static_site
     name: pathwise-client
-    runtime: static
-    plan: free
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: client/dist
     envVars:
