@@ -123,6 +123,7 @@ function SimulationView() {
   const [isLoading, setIsLoading] = useState(false);
   const [scenarioStarted, setScenarioStarted] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showEndModal, setShowEndModal] = useState(false);
   const [scenarioInfo, setScenarioInfo] = useState({
     characterName: 'Alex',
     characterRole: 'Employee',
@@ -234,9 +235,8 @@ function SimulationView() {
   };
 
   const handleEndScenario = () => {
-    if (confirm('Are you sure you want to end this scenario?')) {
-      wsEndScenario();
-    }
+    wsEndScenario();
+    setShowEndModal(true);
   };
 
   const handleViewStats = () => {
@@ -253,7 +253,9 @@ function SimulationView() {
     });
     setIsLoading(false);
     setScenarioStarted(false);
+    setShowEndModal(false);
     wsResetScenario();
+    window.location.href = '/';
   };
 
   const getMetricColor = (value: number) => {
@@ -387,12 +389,78 @@ function SimulationView() {
       />
 
       <ScenarioEndModal
-        isOpen={scenarioEnded}
+        isOpen={scenarioEnded && !showEndModal}
         onStartNew={handleStartNew}
         report={scenarioReport}
         metrics={metrics}
         messageCount={messages.filter(m => m.role === 'manager').length}
       />
+
+      {/* End Conversation Modal */}
+      {showEndModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            {/* Top accent */}
+            <div className="h-1.5 bg-gradient-to-r from-[#6366F1] to-[#818CF8]" />
+
+            <div className="p-8 text-center">
+              {/* Icon */}
+              <div className="w-16 h-16 mx-auto mb-5 bg-[#EEF2FF] rounded-2xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-[#6366F1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+
+              <h2 className="text-xl font-bold text-[#1E2D3D] mb-2">Session Complete</h2>
+              <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                Your conversation has been sent to your executive coach. They'll review your session and share detailed feedback with you shortly.
+              </p>
+
+              {/* Quick score summary */}
+              <div className="bg-[#F8F7F4] rounded-xl p-4 mb-6 text-left space-y-2.5">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Your Scores</p>
+                {[
+                  { label: 'Psychological Safety', value: metrics.psychologicalSafety, icon: '🧠' },
+                  { label: 'Legal Compliance', value: metrics.legalCompliance, icon: '⚖️' },
+                  { label: 'Clarity of Feedback', value: metrics.clarityOfFeedback, icon: '🎯' },
+                ].map(({ label, value, icon }) => (
+                  <div key={label} className="flex items-center justify-between">
+                    <span className="text-xs text-slate-500 flex items-center space-x-1.5">
+                      <span>{icon}</span><span>{label}</span>
+                    </span>
+                    <span className={`text-xs font-bold ${value >= 70 ? 'text-emerald-600' : value >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
+                      {Math.round(value)}
+                    </span>
+                  </div>
+                ))}
+                <div className="pt-2 border-t border-[#E8E4DE] flex items-center justify-between">
+                  <span className="text-xs text-slate-500">Messages exchanged</span>
+                  <span className="text-xs font-bold text-[#1E2D3D]">{messages.length}</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-400 mb-6">
+                Full analysis and coaching recommendations will be shared by your coach.
+              </p>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowEndModal(false)}
+                  className="flex-1 py-2.5 border border-[#E8E4DE] text-[#1E2D3D] rounded-xl text-sm font-medium hover:bg-[#F8F7F4] transition-colors"
+                >
+                  Review Conversation
+                </button>
+                <button
+                  onClick={handleStartNew}
+                  className="flex-1 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white rounded-xl text-sm font-medium transition-colors"
+                >
+                  New Scenario
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
