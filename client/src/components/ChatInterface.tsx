@@ -4,6 +4,17 @@ import { VoiceControls } from './VoiceControls';
 import { useGeminiVoice } from '../hooks/useGeminiVoice';
 import { config } from '../config';
 
+// Realistic avatar photos mapped by character name seed
+const avatarPhotos: Record<string, string> = {
+  'Alex Chen': 'https://randomuser.me/api/portraits/men/32.jpg',
+  'Jordan Martinez': 'https://randomuser.me/api/portraits/men/45.jpg',
+  'Priya Sharma': 'https://randomuser.me/api/portraits/women/44.jpg',
+};
+
+function getAvatar(name: string): string {
+  return avatarPhotos[name] || `https://randomuser.me/api/portraits/men/1.jpg`;
+}
+
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (content: string) => void;
@@ -77,12 +88,13 @@ CRITICAL RULES:
       <div className="bg-white border-b border-[#E8E4DE] px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-full bg-[#EEF2FF] flex items-center justify-center text-sm font-bold text-[#6366F1]">
-              {characterName.charAt(0)}
+            <div className="relative">
+              <img src={getAvatar(characterName)} alt={characterName} className="w-10 h-10 rounded-full object-cover ring-2 ring-[#EEF2FF]" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-[#1E2D3D]">{scenarioName}</h2>
-              <p className="text-xs text-slate-400">Conversation with {characterName} · {characterRole}</p>
+              <h2 className="text-sm font-semibold text-[#1E2D3D]">{characterName} <span className="text-xs font-normal text-slate-400">· {characterRole}</span></h2>
+              <p className="text-xs text-slate-400">{scenarioName}</p>
             </div>
           </div>
           <div className="flex space-x-2">
@@ -113,8 +125,9 @@ CRITICAL RULES:
         {messages.length === 0 ? (
           <div className="h-full flex items-center justify-center">
             <div className="text-center max-w-sm mx-auto">
-              <div className="w-16 h-16 mx-auto mb-4 bg-[#EEF2FF] rounded-2xl flex items-center justify-center text-2xl font-bold text-[#6366F1] shadow-sm">
-                {characterName.charAt(0)}
+              <div className="relative w-24 h-24 mx-auto mb-4">
+                <img src={getAvatar(characterName)} alt={characterName} className="w-24 h-24 rounded-2xl object-cover shadow-md" />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white" />
               </div>
               <div className="bg-white border border-[#E8E4DE] rounded-2xl p-5 mb-3 shadow-sm">
                 <p className="text-sm font-semibold text-[#1E2D3D] mb-1">{characterName} is ready</p>
@@ -128,8 +141,11 @@ CRITICAL RULES:
           </div>
         ) : (
           messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === 'manager' ? 'justify-end' : 'justify-start'}`}>
-              <div className="flex flex-col max-w-[78%]">
+            <div key={message.id} className={`flex items-end space-x-2 ${message.role === 'manager' ? 'justify-end' : 'justify-start'}`}>
+              {message.role === 'employee' && (
+                <img src={getAvatar(characterName)} alt={characterName} className="w-7 h-7 rounded-full object-cover flex-shrink-0 mb-5" />
+              )}
+              <div className="flex flex-col max-w-[75%]">
                 <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   message.role === 'manager'
                     ? 'bg-[#6366F1] text-white rounded-br-sm'

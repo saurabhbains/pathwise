@@ -106,176 +106,106 @@ export default function ClientScenarios() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E0FBFC] via-white to-[#98C1D9] relative overflow-hidden">
-      {/* Background Decorations */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#EE6C4D] rounded-full opacity-10 blur-3xl -translate-y-1/2 translate-x-1/2 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#3D5A80] rounded-full opacity-5 blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
+    <div className="min-h-screen bg-[#F8F7F4]">
       {/* Header */}
-      <div className="relative bg-[#3D5A80] border-b-2 border-[#293241] shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between mb-6">
+      <div className="bg-[#1E2D3D] border-b border-[#2E4057]">
+        <div className="max-w-6xl mx-auto px-8 py-5">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <img 
-                src="/pathwiseicon_square.png" 
-                alt="Pathwise" 
-                className="w-16 h-16 rounded-2xl shadow-lg"
-              />
-              <div>
-                <img 
-                  src="/pathwise_wordmark_white.png" 
-                  alt="Pathwise" 
-                  className="h-10 mb-2"
-                />
-                <p className="text-[#E0FBFC] font-medium">Client Scenarios ✨</p>
-              </div>
+              <img src="/pathwiseicon_square.png" alt="Pathwise" className="w-10 h-10 rounded-xl shadow" />
+              <img src="/pathwise_wordmark_white.png" alt="Pathwise" className="h-8" />
             </div>
-            
-            {/* Mode Switcher */}
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-[#293241] rounded-xl p-1 border-2 border-[#98C1D9]">
-                <button
-                  onClick={() => window.location.href = '/'}
-                  className="px-4 py-2 text-[#E0FBFC] hover:bg-[#3D5A80] rounded-lg font-bold transition-colors"
-                >
-                  🎓 Learner
-                </button>
-                <button
-                  className="px-4 py-2 bg-[#98C1D9] text-[#293241] rounded-lg font-bold shadow-md"
-                >
-                  👨‍🏫 Coach
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Client Info Card */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg flex items-center space-x-6">
-            <button
-              onClick={() => window.location.href = '/coach'}
-              className="p-3 bg-[#E0FBFC] hover:bg-[#98C1D9] rounded-xl transition-colors"
-            >
-              <svg className="w-6 h-6 text-[#3D5A80]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div className="w-16 h-16 bg-gradient-to-br from-[#EE6C4D] to-[#ff8a73] rounded-full flex items-center justify-center text-white text-2xl font-black shadow-lg">
-              {client.name.split(' ').map(n => n[0]).join('')}
-            </div>
-            
-            <div className="flex-1">
-              <h2 className="text-2xl font-black text-[#293241]">{client.name}</h2>
-              <p className="text-[#3D5A80] font-medium">{client.title}</p>
-              <p className="text-sm text-[#98C1D9]">{client.company} • {client.department}</p>
-            </div>
-
-            <div className="text-right">
-              <p className="text-3xl font-black text-[#293241]">3</p>
-              <p className="text-sm font-bold text-[#3D5A80] uppercase">Scenarios</p>
+            <div className="flex items-center space-x-1 bg-[#2E4057] rounded-lg p-1">
+              <button onClick={() => window.location.href = '/'} className="px-4 py-1.5 text-slate-300 hover:text-white text-sm font-medium rounded-md transition-colors">
+                Learner
+              </button>
+              <button className="px-4 py-1.5 bg-[#6366F1] text-white text-sm font-medium rounded-md shadow">
+                Coach
+              </button>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Client Info */}
+      <div className="max-w-6xl mx-auto px-8 pt-8 pb-4">
+        <div className="flex items-center space-x-4 mb-6">
+          <button onClick={() => window.location.href = '/coach'} className="p-2 bg-white hover:bg-[#F0EDE8] rounded-xl border border-[#E8E4DE] transition-colors">
+            <svg className="w-5 h-5 text-[#1E2D3D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="w-12 h-12 bg-[#EEF2FF] rounded-xl flex items-center justify-center text-base font-bold text-[#6366F1]">
+            {client.name.split(' ').map(n => n[0]).join('')}
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#1E2D3D]">{client.name}</h2>
+            <p className="text-sm text-slate-500">{client.title} · {client.company}</p>
+          </div>
+          <div className="ml-auto">
+            <span className="px-3 py-1 bg-[#EEF2FF] text-[#6366F1] rounded-full text-xs font-semibold">3 Scenarios</span>
+          </div>
+        </div>
+      </div>
+
       {/* Scenarios List */}
-      <div className="max-w-7xl mx-auto px-6 py-8 relative">
-        <div className="grid grid-cols-1 gap-6">
-          {scenarios.map((scenario, idx) => (
-            <div
-              key={scenario.id}
-              className="group bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border-3 border-[#E0FBFC] hover:border-[#98C1D9] overflow-hidden transform hover:-translate-y-2"
-              style={{ animationDelay: `${idx * 100}ms` }}
-            >
+      <div className="max-w-6xl mx-auto px-8 pb-16">
+        <div className="grid grid-cols-1 gap-5">
+          {scenarios.map((scenario) => (
+            <div key={scenario.id} className="bg-white rounded-2xl border border-[#E8E4DE] overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-[#6366F1] to-[#818CF8]" />
               <div className="flex flex-col md:flex-row">
-                {/* Left: Character Avatar & Info */}
-                <div className="md:w-1/4 bg-gradient-to-br from-[#3D5A80] to-[#98C1D9] p-8 flex flex-col items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                  </div>
-                  
-                  <div className="relative w-24 h-24 bg-gradient-to-br from-[#EE6C4D] to-[#ff8a73] rounded-full flex items-center justify-center text-white text-4xl font-black shadow-2xl transform group-hover:scale-110 group-hover:rotate-6 transition-all ring-4 ring-white">
+                {/* Left: Character */}
+                <div className="md:w-48 bg-[#1E2D3D] p-6 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 bg-[#EEF2FF] rounded-xl flex items-center justify-center text-xl font-bold text-[#6366F1] mb-3">
                     {scenario.characterName.charAt(0)}
                   </div>
-                  
-                  <h3 className="mt-4 text-xl font-black text-white text-center">{scenario.characterName}</h3>
-                  <p className="text-sm text-[#E0FBFC] text-center">{scenario.characterRole}</p>
+                  <p className="text-sm font-semibold text-white text-center">{scenario.characterName}</p>
+                  <p className="text-xs text-slate-400 text-center mt-0.5">{scenario.characterRole}</p>
                 </div>
 
-                {/* Middle: Scenario Details */}
-                <div className="flex-1 p-8">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-black text-[#293241] mb-2 group-hover:text-[#3D5A80] transition-colors">
-                        {scenario.name}
-                      </h3>
-                      <p className="text-[#3D5A80] leading-relaxed">{scenario.description}</p>
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="flex items-center space-x-6 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">📊</span>
-                      <span className="text-[#3D5A80] font-semibold">{scenario.timesRun} runs</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">🎯</span>
-                      <span className="text-[#3D5A80] font-semibold">{scenario.avgScore}% avg</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">⏱️</span>
-                      <span className="text-[#3D5A80] font-semibold">{scenario.estimatedTime}</span>
-                    </div>
+                {/* Middle: Details */}
+                <div className="flex-1 p-6">
+                  <h3 className="text-lg font-bold text-[#1E2D3D] mb-1">{scenario.name}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed mb-4">{scenario.description}</p>
+                  <div className="flex items-center space-x-5 text-xs text-slate-400">
+                    <span>📊 {scenario.timesRun} runs</span>
+                    <span>🎯 {scenario.avgScore}% avg</span>
+                    <span>⏱ {scenario.estimatedTime}</span>
                   </div>
                 </div>
 
                 {/* Right: Actions */}
-                <div className="md:w-64 bg-gradient-to-br from-[#E0FBFC] to-white p-6 border-l-2 border-[#98C1D9] flex flex-col space-y-3">
+                <div className="md:w-52 p-5 border-l border-[#F0EDE8] flex flex-col space-y-2.5 justify-center">
                   <button
                     onClick={() => window.location.href = `/coach/scenario/${scenario.id}/configure`}
-                    className="w-full py-3 px-4 bg-white hover:bg-[#E0FBFC] text-[#3D5A80] border-2 border-[#3D5A80] rounded-xl font-bold transition-all transform hover:scale-105 hover:-rotate-1 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                    className="w-full py-2 px-4 border border-[#E8E4DE] hover:border-[#6366F1] hover:text-[#6366F1] text-[#1E2D3D] rounded-xl text-sm font-medium transition-colors flex items-center justify-center space-x-2"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     <span>Configure</span>
                   </button>
-
                   <button
                     onClick={() => window.location.href = `/coach/scenario/${scenario.id}/test`}
-                    className="w-full py-3 px-4 bg-gradient-to-r from-[#EE6C4D] to-[#ff8a73] hover:from-[#ff8a73] hover:to-[#EE6C4D] text-white rounded-xl font-bold transition-all transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                    className="w-full py-2 px-4 bg-[#6366F1] hover:bg-[#4F46E5] text-white rounded-xl text-sm font-medium transition-colors flex items-center justify-center space-x-2"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>Test Run</span>
                   </button>
-
                   <button
                     onClick={() => window.location.href = `/coach/scenario/${scenario.id}/analytics`}
-                    className="w-full py-3 px-4 bg-white hover:bg-[#98C1D9] text-[#3D5A80] hover:text-white border-2 border-[#98C1D9] rounded-xl font-bold transition-all transform hover:scale-105 hover:rotate-1 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+                    className="w-full py-2 px-4 border border-[#E8E4DE] hover:border-[#6366F1] hover:text-[#6366F1] text-[#1E2D3D] rounded-xl text-sm font-medium transition-colors flex items-center justify-center space-x-2"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     <span>Analytics</span>
                   </button>
-
-                  <div className="pt-3 mt-3 border-t-2 border-[#98C1D9]">
-                    <p className="text-xs font-bold text-[#3D5A80] mb-2 uppercase tracking-wide">Quick Actions</p>
-                    <div className="space-y-1">
-                      <button className="w-full text-xs py-2 text-[#3D5A80] hover:text-[#EE6C4D] hover:bg-white rounded-lg transition-all text-left px-2 font-semibold">
-                        📋 Duplicate
-                      </button>
-                      <button className="w-full text-xs py-2 text-[#3D5A80] hover:text-[#EE6C4D] hover:bg-white rounded-lg transition-all text-left px-2 font-semibold">
-                        📤 Export
-                      </button>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
