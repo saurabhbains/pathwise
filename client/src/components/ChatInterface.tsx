@@ -4,15 +4,15 @@ import { VoiceControls } from './VoiceControls';
 import { useGeminiVoice } from '../hooks/useGeminiVoice';
 import { config } from '../config';
 
-// Full portrait photos — realistic professional headshots from Unsplash
+// Local portrait photos served from /public
 const avatarPhotos: Record<string, string> = {
-  'Alex Chen': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=faces',
-  'Jordan Martinez': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&crop=faces',
-  'Priya Sharma': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop&crop=faces',
+  'Alex Chen': '/avatar-alex.jpg',
+  'Jordan Martinez': '/avatar-jordan.jpg',
+  'Priya Sharma': '/avatar-priya.jpg',
 };
 
 function getAvatar(name: string): string {
-  return avatarPhotos[name] || avatarPhotos['Alex Chen'];
+  return avatarPhotos[name] || '/avatar-alex.jpg';
 }
 
 interface ChatInterfaceProps {
@@ -121,11 +121,12 @@ CRITICAL RULES:
       </div>
 
       {/* Video call portrait — always visible at top */}
-      <div className="relative bg-[#1E2D3D] overflow-hidden" style={{ height: '220px' }}>
+      <div className="relative bg-[#1a1a2e] overflow-hidden" style={{ height: '260px' }}>
         <img
           src={getAvatar(characterName)}
           alt={characterName}
-          className="w-full h-full object-cover object-top opacity-90"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: 'center 20%' }}
         />
         {/* Gradient overlay at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1E2D3D] via-transparent to-transparent" />
