@@ -4,15 +4,15 @@ import { VoiceControls } from './VoiceControls';
 import { useGeminiVoice } from '../hooks/useGeminiVoice';
 import { config } from '../config';
 
-// Realistic avatar photos mapped by character name seed
+// Full portrait photos — realistic professional headshots from Unsplash
 const avatarPhotos: Record<string, string> = {
-  'Alex Chen': 'https://randomuser.me/api/portraits/men/32.jpg',
-  'Jordan Martinez': 'https://randomuser.me/api/portraits/men/45.jpg',
-  'Priya Sharma': 'https://randomuser.me/api/portraits/women/44.jpg',
+  'Alex Chen': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=faces',
+  'Jordan Martinez': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop&crop=faces',
+  'Priya Sharma': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop&crop=faces',
 };
 
 function getAvatar(name: string): string {
-  return avatarPhotos[name] || `https://randomuser.me/api/portraits/men/1.jpg`;
+  return avatarPhotos[name] || avatarPhotos['Alex Chen'];
 }
 
 interface ChatInterfaceProps {
@@ -120,19 +120,34 @@ CRITICAL RULES:
         </div>
       </div>
 
+      {/* Video call portrait — always visible at top */}
+      <div className="relative bg-[#1E2D3D] overflow-hidden" style={{ height: '220px' }}>
+        <img
+          src={getAvatar(characterName)}
+          alt={characterName}
+          className="w-full h-full object-cover object-top opacity-90"
+        />
+        {/* Gradient overlay at bottom */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1E2D3D] via-transparent to-transparent" />
+        {/* Name tag bottom-left */}
+        <div className="absolute bottom-3 left-4 flex items-center space-x-2">
+          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+          <span className="text-white text-sm font-semibold drop-shadow">{characterName}</span>
+          <span className="text-slate-300 text-xs">{characterRole}</span>
+        </div>
+        {/* Mic icon bottom-right */}
+        <div className="absolute bottom-3 right-4 bg-black/40 rounded-full p-1.5">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+          </svg>
+        </div>
+      </div>
+
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#F8F7F4]">
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-[#F8F7F4]">
         {messages.length === 0 ? (
           <div className="h-full flex items-center justify-center">
-            <div className="text-center max-w-sm mx-auto">
-              <div className="relative w-24 h-24 mx-auto mb-4">
-                <img src={getAvatar(characterName)} alt={characterName} className="w-24 h-24 rounded-2xl object-cover shadow-md" />
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white" />
-              </div>
-              <div className="bg-white border border-[#E8E4DE] rounded-2xl p-5 mb-3 shadow-sm">
-                <p className="text-sm font-semibold text-[#1E2D3D] mb-1">{characterName} is ready</p>
-                <p className="text-xs text-slate-500">{characterRole} — start the conversation when you're ready.</p>
-              </div>
+            <div className="text-center max-w-xs mx-auto">
               <div className="bg-[#EEF2FF] rounded-xl p-4 text-left">
                 <p className="text-xs font-semibold text-[#4F46E5] mb-1">💡 Quick Tip</p>
                 <p className="text-xs text-slate-600 leading-relaxed">Open with a greeting and set a positive tone. Be specific with examples, focus on behaviors — not personality.</p>
@@ -143,7 +158,7 @@ CRITICAL RULES:
           messages.map((message) => (
             <div key={message.id} className={`flex items-end space-x-2 ${message.role === 'manager' ? 'justify-end' : 'justify-start'}`}>
               {message.role === 'employee' && (
-                <img src={getAvatar(characterName)} alt={characterName} className="w-7 h-7 rounded-full object-cover flex-shrink-0 mb-5" />
+                <img src={getAvatar(characterName)} alt={characterName} className="w-6 h-6 rounded-full object-cover object-top flex-shrink-0 mb-5" />
               )}
               <div className="flex flex-col max-w-[75%]">
                 <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
