@@ -74,87 +74,71 @@ CRITICAL RULES:
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Chat Header */}
-      <div className="bg-primary-600 text-white px-6 py-4 shadow-sm">
+      <div className="bg-white border-b border-[#E8E4DE] px-6 py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">{scenarioName}</h2>
-            <p className="text-sm text-primary-100">Conversation with {characterName} • {characterRole}</p>
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-full bg-[#EEF2FF] flex items-center justify-center text-sm font-bold text-[#6366F1]">
+              {characterName.charAt(0)}
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-[#1E2D3D]">{scenarioName}</h2>
+              <p className="text-xs text-slate-400">Conversation with {characterName} · {characterRole}</p>
+            </div>
           </div>
           <div className="flex space-x-2">
             <button
               onClick={onViewStats}
-              className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+              className="px-3 py-1.5 bg-[#F0EDE8] hover:bg-[#E8E4DE] text-[#1E2D3D] rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               <span>My Stats</span>
             </button>
             <button
               onClick={onEndScenario}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs font-medium transition-colors flex items-center space-x-1.5"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              <span>End Scenario</span>
+              <span>End</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-[#F8F7F4]">
         {messages.length === 0 ? (
           <div className="h-full flex items-center justify-center">
-            <div className="text-center max-w-md mx-auto">
-              {/* Character Avatar */}
-              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+            <div className="text-center max-w-sm mx-auto">
+              <div className="w-16 h-16 mx-auto mb-4 bg-[#EEF2FF] rounded-2xl flex items-center justify-center text-2xl font-bold text-[#6366F1] shadow-sm">
                 {characterName.charAt(0)}
               </div>
-
-              {/* Welcome Message */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-4">
-                <p className="text-lg font-semibold text-gray-900 mb-2">
-                  {characterName} is here for their review
-                </p>
-                <p className="text-sm text-gray-600">
-                  They're a <span className="font-medium">{characterRole}</span>. Start the conversation when you're ready.
-                </p>
+              <div className="bg-white border border-[#E8E4DE] rounded-2xl p-5 mb-3 shadow-sm">
+                <p className="text-sm font-semibold text-[#1E2D3D] mb-1">{characterName} is ready</p>
+                <p className="text-xs text-slate-500">{characterRole} — start the conversation when you're ready.</p>
               </div>
-
-              {/* Helpful Tip */}
-              <div className="text-left bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <p className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
-                  <svg className="w-4 h-4 mr-1 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Quick Tip
-                </p>
-                <p className="text-xs text-gray-600">
-                  Open with a greeting and set a positive tone. Be specific with examples and focus on behaviors, not personality.
-                </p>
+              <div className="bg-[#EEF2FF] rounded-xl p-4 text-left">
+                <p className="text-xs font-semibold text-[#4F46E5] mb-1">💡 Quick Tip</p>
+                <p className="text-xs text-slate-600 leading-relaxed">Open with a greeting and set a positive tone. Be specific with examples, focus on behaviors — not personality.</p>
               </div>
             </div>
           </div>
         ) : (
           messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.role === 'manager' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className="flex flex-col max-w-[80%]">
-                <div
-                  className={`message-bubble ${
-                    message.role === 'manager'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-200 text-gray-900'
-                  }`}
-                >
+            <div key={message.id} className={`flex ${message.role === 'manager' ? 'justify-end' : 'justify-start'}`}>
+              <div className="flex flex-col max-w-[78%]">
+                <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  message.role === 'manager'
+                    ? 'bg-[#6366F1] text-white rounded-br-sm'
+                    : 'bg-white text-[#1E2D3D] border border-[#E8E4DE] rounded-bl-sm shadow-sm'
+                }`}>
                   {message.content}
                 </div>
-                <span className="text-xs text-gray-500 mt-1 px-2">
-                  {message.role === 'manager' ? 'You' : characterName} • {new Date(message.timestamp).toLocaleTimeString()}
+                <span className="text-xs text-slate-400 mt-1 px-1">
+                  {message.role === 'manager' ? 'You' : characterName} · {new Date(message.timestamp).toLocaleTimeString()}
                 </span>
               </div>
             </div>
@@ -162,13 +146,13 @@ CRITICAL RULES:
         )}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-200 rounded-lg px-4 py-3 flex items-center space-x-2">
+            <div className="bg-white border border-[#E8E4DE] rounded-2xl rounded-bl-sm px-4 py-3 flex items-center space-x-2 shadow-sm">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
-              <span className="text-sm text-gray-600">{characterName} is typing...</span>
+              <span className="text-xs text-slate-500">{characterName} is typing…</span>
             </div>
           </div>
         )}
@@ -176,15 +160,15 @@ CRITICAL RULES:
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
-        <form onSubmit={handleSubmit} className="flex space-x-3">
+      <div className="border-t border-[#E8E4DE] px-6 py-4 bg-white">
+        <form onSubmit={handleSubmit} className="flex space-x-2">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder={isRecording ? "Listening..." : "Type your message..."}
+            placeholder={isRecording ? "Listening…" : "Type your message…"}
             disabled={isLoading || isRecording}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="flex-1 px-4 py-2.5 border border-[#E8E4DE] rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 focus:border-[#6366F1] disabled:bg-[#F8F7F4] disabled:cursor-not-allowed bg-[#F8F7F4] text-[#1E2D3D] placeholder-slate-400"
           />
           <VoiceControls
             isRecording={isRecording}
@@ -198,17 +182,13 @@ CRITICAL RULES:
           <button
             type="submit"
             disabled={!inputValue.trim() || isLoading || isRecording}
-            className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2.5 bg-[#6366F1] text-white rounded-xl text-sm font-medium hover:bg-[#4F46E5] focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:ring-offset-2 disabled:bg-slate-200 disabled:cursor-not-allowed transition-colors"
           >
             Send
           </button>
         </form>
-        <p className="text-xs text-gray-500 mt-2">
-          {isRecording
-            ? isPaused
-              ? "⏸️ Recording paused - Click play to resume"
-              : "🎤 Voice mode active - Click pause to stop recording temporarily"
-            : "Tip: Be specific with examples and focus on behaviors, not personality"}
+        <p className="text-xs text-slate-400 mt-2">
+          {isRecording ? isPaused ? "⏸ Paused" : "🎤 Listening…" : "Tip: Be specific with examples, focus on behaviors not personality"}
         </p>
       </div>
     </div>

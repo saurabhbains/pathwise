@@ -7,24 +7,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Pathwise Custom Color Palette (Duolingo-inspired)
-        'dusk-blue': '#3D5A80',
-        'powder-blue': '#98C1D9',
-        'light-cyan': '#E0FBFC',
-        'burnt-peach': '#EE6C4D',
-        'jet-black': '#293241',
+        // Pathwise Premium Palette
+        'ink': '#1E2D3D',
+        'ink-light': '#2E4057',
+        'parchment': '#F8F7F4',
+        'parchment-dark': '#F0EDE8',
+        'accent': '#6366F1',
+        'accent-light': '#818CF8',
+        'accent-dark': '#4F46E5',
+        'sage': '#10B981',
+        'amber': '#F59E0B',
+        'rose': '#F43F5E',
 
         // Keep primary for backward compatibility
         primary: {
-          50: '#E0FBFC',
-          100: '#98C1D9',
-          500: '#3D5A80',
-          600: '#3D5A80',
-          700: '#293241',
+          50: '#EEF2FF',
+          100: '#C7D2FE',
+          500: '#6366F1',
+          600: '#6366F1',
+          700: '#4F46E5',
         },
         success: '#10b981',
         warning: '#f59e0b',
-        danger: '#EE6C4D',
+        danger: '#F43F5E',
       },
       borderWidth: {
         '3': '3px',
