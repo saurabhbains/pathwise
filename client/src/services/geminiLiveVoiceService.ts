@@ -253,8 +253,8 @@ export class GeminiLiveVoiceService {
     }
 
     // Handle output transcription (what AI is saying)
-    if (message.serverContent?.modelTurn?.outputTranscription) {
-      this.currentOutputTranscription += message.serverContent.modelTurn.outputTranscription;
+    if ((message.serverContent?.modelTurn as any)?.outputTranscription) {
+      this.currentOutputTranscription += (message.serverContent!.modelTurn as any).outputTranscription;
     }
 
     // When model turn is complete, emit transcript
@@ -275,7 +275,7 @@ export class GeminiLiveVoiceService {
     }
 
     // When user turn is complete, emit transcript
-    if (message.serverContent?.userTurnComplete) {
+    if ((message.serverContent as any)?.userTurnComplete) {
       if (this.currentInputTranscription) {
         this.callbacks.onTranscriptUpdate?.({
           role: 'user',
