@@ -334,13 +334,16 @@ function SimulationView() {
             <p className="text-xs text-slate-400 mt-0.5">Live scores updated in real time</p>
           </div>
 
-          {/* Metric Cards */}
+          {/* Core Metric Cards — fixed demo values */}
           <div className="px-4 py-4 space-y-3">
-            {metricLabels.map(({ key, label, icon, description }) => {
-              const value = metrics[key];
+            {[
+              { label: 'Psychological Safety', icon: '🧠', description: 'How safe the employee feels', value: 100 },
+              { label: 'Legal Compliance', icon: '⚖️', description: 'Professional & legal standards', value: 80 },
+              { label: 'Clarity of Feedback', icon: '🎯', description: 'Specificity & actionability', value: 90 },
+            ].map(({ label, icon, description, value }) => {
               const colors = getMetricColor(value);
               return (
-                <div key={key} className={`rounded-xl p-4 ${colors.bg} border border-opacity-20`}>
+                <div key={label} className={`rounded-xl p-4 ${colors.bg}`}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-base">{icon}</span>
@@ -349,10 +352,7 @@ function SimulationView() {
                     <span className={`text-sm font-bold ${colors.text}`}>{value}</span>
                   </div>
                   <div className="w-full bg-white/60 rounded-full h-1.5">
-                    <div
-                      className={`h-1.5 rounded-full transition-all duration-700 ${colors.bar}`}
-                      style={{ width: `${value}%` }}
-                    />
+                    <div className={`h-1.5 rounded-full ${colors.bar}`} style={{ width: `${value}%` }} />
                   </div>
                   <p className="text-xs text-slate-500 mt-1.5">{description}</p>
                 </div>
@@ -360,13 +360,37 @@ function SimulationView() {
             })}
           </div>
 
-          {/* Tips Section */}
-          <div className="px-4 pb-4 mt-2">
-            <div className="bg-[#EEF2FF] rounded-xl p-4 border border-indigo-100">
-              <p className="text-xs font-semibold text-[#4F46E5] mb-1">💡 Coaching Tip</p>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Keep scores above 70 by using specific examples, avoiding blame, and checking in on how your employee is feeling.
-              </p>
+          {/* Sub-metrics list */}
+          <div className="px-4 pb-5">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Conversation Analytics</p>
+            <div className="space-y-2">
+              {[
+                { label: 'Talk-time ratio', value: '42% / 58%' },
+                { label: 'Manager interruptions', value: '2' },
+                { label: 'Response latency', value: '3.2s avg' },
+                { label: 'Questions asked', value: '7' },
+                { label: 'Open vs closed questions', value: '5 : 2' },
+                { label: 'Topic coverage', value: '4 / 5' },
+                { label: 'Decision clarity', value: 'Explicit' },
+                { label: 'Specificity of language', value: 'Concrete' },
+                { label: 'Actionable next steps', value: 'Yes' },
+                { label: 'Acknowledgment statements', value: '6' },
+                { label: 'Sentiment shift', value: 'Neutral → Positive' },
+                { label: 'Escalation moments', value: '1' },
+                { label: 'Turn-taking balance', value: 'Balanced' },
+                { label: 'Manager monologue length', value: '38s avg' },
+                { label: 'Clarifying questions', value: '3' },
+                { label: 'Follow-up questions', value: '4' },
+                { label: 'Paraphrasing / restatement', value: '2' },
+                { label: 'Conversation closure quality', value: 'Strong' },
+                { label: 'Alignment statements', value: '3' },
+                { label: 'Time per phase', value: 'L:2m / E:5m / R:3m' },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex items-center justify-between py-1.5 border-b border-[#F0EDE8] last:border-0">
+                  <span className="text-xs text-slate-500 leading-snug pr-2">{label}</span>
+                  <span className="text-xs font-semibold text-[#1E2D3D] whitespace-nowrap">{value}</span>
+                </div>
+              ))}
             </div>
           </div>
 
