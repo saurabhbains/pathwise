@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { config } from '../config';
 import type { Metrics, ScenarioReport } from '../types';
 
 interface ScenarioEndModalProps {
@@ -9,6 +11,32 @@ interface ScenarioEndModalProps {
 }
 
 export default function ScenarioEndModal({ isOpen, onStartNew, report, metrics, messageCount }: ScenarioEndModalProps) {
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (!report) return;
+    setDownloading(true);
+    try {
+      const response = await fetch(`${config.apiUrl}/api/report/pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(report),
+      });
+      if (!response.ok) throw new Error('Failed to generate PDF');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pathwise-report-${report.scenarioId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF download failed:', err);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   // Determine if scenario was completed properly
@@ -223,7 +251,26 @@ export default function ScenarioEndModal({ isOpen, onStartNew, report, metrics, 
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 px-8 py-6 bg-gray-50 flex justify-center">
+        <div className="border-t border-gray-200 px-8 py-6 bg-gray-50 flex flex-col sm:flex-row items-center justify-center gap-3">
+          {report && (
+            <button
+              onClick={handleDownloadPDF}
+              disabled={downloading}
+              className="px-6 py-3 bg-[#1E2D3D] hover:bg-[#2E4057] text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+            >
+              {downloading ? (
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
+              <span>{downloading ? 'Generating PDF...' : 'Download Report (PDF)'}</span>
+            </button>
+          )}
           <button
             onClick={onStartNew}
             className="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2 text-lg"

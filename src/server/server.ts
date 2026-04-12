@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
+import multer from 'multer';
 import { config } from '../utils/config.js';
 import { logger } from '../utils/logger.js';
 import { audioRouter } from './audioRouter.js';
@@ -8,6 +9,8 @@ import { ScenarioEngine } from '../engine/engine.js';
 import { performanceReviewScenario, getAllScenarios, getScenarioById } from '../engine/scenarios/index.js';
 import { createLLMProvider } from '../llm/index.js';
 import { getVoiceGenerator, VoiceProfile } from '../audio/voiceGenerator.js';
+import { generatePDFReport } from '../reports/pdfReport.js';
+import type { ScenarioReport } from '../engine/scenarioTypes.js';
 
 const app = express();
 const server = createServer(app);
@@ -109,6 +112,135 @@ function getEstimatedTime(minTurns: number): string {
 // Audio router
 app.use('/api/audio', audioRouter);
 
+// ── PDF Report Generation ─────────────────────────────────────────────────────
+app.post('/api/report/pdf', async (req, res) => {
+  try {
+    const report: ScenarioReport = req.body;
+    if (!report || !report.scenarioId) {
+      res.status(400).json({ error: 'Invalid report data' });
+      return;
+    }
+    const pdfBuffer = await generatePDFReport(report);
+    const filename = `pathwise-report-${report.scenarioId}-${Date.now()}.pdf`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(pdfBuffer);
+  } catch (error) {
+    logger.error('PDF generation failed:', error);
+    res.status(500).json({ error: 'Failed to generate PDF report' });
+  }
+});
+
+// ── RAG Document Upload ───────────────────────────────────────────────────────
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'application/pdf' || file.mimetype === 'text/plain') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF and TXT files are allowed'));
+    }
+  }
+});
+
+// In-memory store for uploaded documents (keyed by session/scenario)
+const uploadedDocuments = new Map<string, { name: string; content: string; uploadedAt: Date }[]>();
+
+app.post('/api/documents/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
+    }
+
+    const sessionId = req.body.sessionId || 'default';
+    let content = '';
+
+    if (req.file.mimetype === 'text/plain') {
+      content = req.file.buffer.toString('utf-8');
+    } else if (req.file.mimetype === 'application/pdf') {
+      // Extract text from PDF using basic buffer parsing
+      const text = req.file.buffer.toString('binary');
+      // Extract readable text between BT/ET markers (basic PDF text extraction)
+      const matches = text.match(/BT[\s\S]*?ET/g) || [];
+      const extracted = matches.map(block => {
+        return block.replace(/BT|ET|Tf|Td|TD|Tm|T\*|Tj|TJ|'|"/g, ' ')
+          .replace(/\(([^)]*)\)/g, '$1')
+          .replace(/[^\x20-\x7E\s]/g, ' ')
+          .trim();
+      }).join(' ');
+      content = extracted || req.file.buffer.toString('utf-8', 0, 10000);
+    }
+
+    if (!uploadedDocuments.has(sessionId)) {
+      uploadedDocuments.set(sessionId, []);
+    }
+    uploadedDocuments.get(sessionId)!.push({
+      name: req.file.originalname,
+      content: content.slice(0, 50000), // cap at 50k chars
+      uploadedAt: new Date()
+    });
+
+    logger.info('Document uploaded', { sessionId, filename: req.file.originalname, size: req.file.size });
+    res.json({ success: true, filename: req.file.originalname, sessionId });
+  } catch (error) {
+    logger.error('Document upload failed:', error);
+    res.status(500).json({ error: 'Failed to process document' });
+  }
+});
+
+app.get('/api/documents/:sessionId', (req, res) => {
+  const docs = uploadedDocuments.get(req.params.sessionId) || [];
+  res.json({ documents: docs.map(d => ({ name: d.name, uploadedAt: d.uploadedAt })) });
+});
+
+app.delete('/api/documents/:sessionId/:filename', (req, res) => {
+  const docs = uploadedDocuments.get(req.params.sessionId) || [];
+  const filtered = docs.filter(d => d.name !== req.params.filename);
+  uploadedDocuments.set(req.params.sessionId, filtered);
+  res.json({ success: true });
+});
+
+// Expose uploaded doc context for WebSocket scenario start
+export function getDocumentContext(sessionId: string): string {
+  const docs = uploadedDocuments.get(sessionId) || [];
+  if (docs.length === 0) return '';
+  return docs.map(d => `=== ${d.name} ===\n${d.content}`).join('\n\n');
+}
+
+// ── Session Store (in-memory, powers Coach dashboard) ────────────────────────
+interface CompletedSession {
+  id: string;
+  scenarioId: string;
+  scenarioName: string;
+  completedAt: Date;
+  report: ScenarioReport;
+}
+const completedSessions: CompletedSession[] = [];
+
+app.get('/api/sessions', (_req, res) => {
+  res.json({ sessions: completedSessions.slice().reverse() }); // newest first
+});
+
+app.get('/api/sessions/stats', (_req, res) => {
+  const total = completedSessions.length;
+  if (total === 0) {
+    res.json({ totalSessions: 0, avgPsychSafety: 0, avgLegal: 0, avgClarity: 0, avgOverall: 0 });
+    return;
+  }
+  const avg = (key: keyof ScenarioReport['finalMetrics']) =>
+    Math.round(completedSessions.reduce((sum, s) => sum + s.report.finalMetrics[key], 0) / total);
+
+  res.json({
+    totalSessions: total,
+    avgPsychSafety: avg('psychologicalSafety'),
+    avgLegal: avg('legalCompliance'),
+    avgClarity: avg('clarityOfFeedback'),
+    avgOverall: Math.round((avg('psychologicalSafety') + avg('legalCompliance') + avg('clarityOfFeedback')) / 3),
+  });
+});
+
 // WebSocket server
 const wss = new WebSocketServer({ server });
 
@@ -140,9 +272,17 @@ wss.on('connection', (ws) => {
           // Create LLM provider
           const llm = createLLMProvider(config.llmProvider as 'gemini' | 'claude' | 'ollama');
 
+          // Inject uploaded document context if available
+          const sessionId = message.sessionId || 'default';
+          const docContext = getDocumentContext(sessionId);
+          const contextWithDocs = {
+            ...message.context,
+            ...(docContext ? { additionalContext: docContext } : {})
+          };
+
           // Create scenario engine
           const engine = new ScenarioEngine(llm);
-          await engine.initialize(scenario, message.context);
+          await engine.initialize(scenario, contextWithDocs);
 
           // Store engine for this connection
           activeEngines.set(ws, engine);
@@ -220,6 +360,15 @@ wss.on('connection', (ws) => {
           }
 
           const report = await engine.endScenario();
+
+          // Persist to session store for Coach dashboard
+          completedSessions.push({
+            id: `session-${Date.now()}`,
+            scenarioId: report.scenarioId,
+            scenarioName: report.scenarioName,
+            completedAt: new Date(),
+            report,
+          });
 
           ws.send(JSON.stringify({
             type: 'scenario_ended',

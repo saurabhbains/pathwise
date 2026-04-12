@@ -12,6 +12,7 @@ import ScenarioSelector from './components/ScenarioSelector';
 import ScenarioBriefing from './components/ScenarioBriefing';
 import PracticeHistory from './components/PracticeHistory';
 import ScenarioAnalytics from './components/ScenarioAnalytics';
+import DocumentUpload from './components/DocumentUpload';
 import { useWebSocket } from './hooks/useWebSocket';
 import type { Message, ShadowThought, Metrics } from './types';
 
@@ -392,6 +393,11 @@ function SimulationView() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Document Upload */}
+          <div className="px-4 pb-3">
+            <DocumentUpload sessionId={scenarioId || 'default'} />
           </div>
 
           {/* Message count */}
