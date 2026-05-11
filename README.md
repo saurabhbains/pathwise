@@ -1,161 +1,175 @@
 # Pathwise
 
-AI-powered executive coaching simulation platform for practicing difficult leadership conversations.
+AI-powered leadership conversation practice for managers and executive coaches.
 
-## Overview
+Pathwise lets managers rehearse high-stakes conversations with realistic AI employees while a separate HR observer tracks legal risk, psychological safety, and clarity of feedback in real time. Coaches can use the generated session reports to turn practice data into targeted coaching.
 
-Pathwise transforms executive coaching from episodic engagement to continuous partnership by providing:
+Live demo: https://pathwise-ashy.vercel.app
 
-- **AI-Powered Practice Lab**: Safe, high-fidelity simulation environment
-- **Multi-Agent System**: Realistic employee + HR observer agents
-- **Shadow Channel**: Real-time insights into hidden thoughts and legal risks
-- **Coach Dashboard**: Live metrics and behavioral analysis
-- **Automated Reports**: "The Cringe List" and coaching recommendations
+## Why It Exists
 
-## Features
+Leadership coaching usually depends on memory, role-play, and periodic sessions. The moments that matter most often happen between coaching sessions: performance reviews, promotion denials, conflict de-escalation, terminations, and sensitive feedback.
 
-### For Middle Managers
-- Practice difficult performance reviews in a safe environment
-- Build muscle memory for high-stakes conversations
-- Get immediate feedback on communication approach
-- Identify blind spots before real conversations
-- **NEW**: Hear AI agents speak with distinct, realistic voices
+Pathwise turns those moments into repeatable simulations:
 
-### For Executive Coaches
-- Assign "simulation hours" as homework between sessions
-- Receive detailed reports on client performance
-- Data-driven insights instead of subjective recall
-- Scale high-touch support without burnout
-- **NEW**: More immersive practice sessions with voice interaction
+- Practice before a real conversation, not after it goes badly
+- See hidden employee reactions through a shadow channel
+- Track HR risk and behavioral quality turn by turn
+- Generate structured reports coaches can review asynchronously
+- Upload policy or role context to make the simulation more company-specific
+
+## Product Highlights
+
+| Area | What is built |
+| --- | --- |
+| Multi-agent simulation | Employee agent responds emotionally and contextually; HR agent observes risk and feedback quality |
+| Scenario engine | Scenario definitions include character bio, hidden goals, success criteria, and coaching frameworks |
+| Real-time dashboard | Psychological safety, legal compliance, and clarity metrics update during the conversation |
+| Shadow channel | Surfaces hidden employee thoughts and HR observations for coaching feedback |
+| Coach workflow | Coach home, client scenario assignment, scenario configuration, analytics, and practice history views |
+| Voice layer | Optional Gemini/Google Cloud voice paths for more immersive simulations |
+| Reports | PDF report generation with top issues, behavioral analysis, and recommendations |
+| Document context | Upload handbook/policy text to inject additional context into a session |
+
+## How It Works
+
+```mermaid
+flowchart LR
+  Manager["Manager / Learner"] --> UI["React practice UI"]
+  UI --> WS["WebSocket session"]
+  WS --> Engine["Scenario Engine"]
+  Engine --> Employee["Employee Agent"]
+  Engine --> HR["HR Observer Agent"]
+  Employee --> Engine
+  HR --> Engine
+  Engine --> UI
+  Engine --> Report["PDF + coaching report"]
+```
+
+The backend keeps a `ScenarioEngine` per active WebSocket connection. Each manager message is processed by the employee and HR agents in parallel. The employee agent returns the visible response; the HR agent updates metrics and flags risk. At the end of the scenario, the engine turns the session into a coach-ready report.
 
 ## Tech Stack
 
-### Backend
-- **Runtime**: Node.js + TypeScript
-- **Framework**: Express + WebSocket
-- **AI**: Gemini 1.5 Flash (Google Generative AI)
-- **Voice**: Google Cloud Text-to-Speech (Neural2 voices)
-- **Multi-Agent**: Custom TypeScript orchestration
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS |
+| Backend | Node.js, Express, TypeScript, WebSocket |
+| AI providers | Gemini primary, with adapter structure for Claude and Ollama |
+| Voice | Google Cloud Text-to-Speech, Gemini live voice experiments |
+| Reporting | PDFKit |
+| Deployment | Vercel frontend, Render-compatible backend config |
 
-### Frontend
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **UI**: Split-screen (Chat + Dashboard)
+## Repository Structure
 
-## Project Structure
-
-```
+```text
 pathwise/
-├── src/                    # Backend source
-│   ├── agents/            # Multi-agent system
-│   │   ├── EmployeeAgent.ts
-│   │   ├── HRAgent.ts
-│   │   └── SimulationCoordinator.ts
-│   ├── engine/            # Scenario engine
-│   │   ├── engine.ts
-│   │   ├── scenarioTypes.ts
-│   │   └── scenarios/
-│   │       └── performanceReview.ts
-│   ├── llm/               # LLM adapters
-│   │   ├── geminiAdapter.ts
-│   │   ├── claudeAdapter.ts
-│   │   └── ollamaAdapter.ts
-│   ├── server/            # Express server
-│   └── utils/             # Utilities
-├── client/                # React frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── App.tsx
-│   │   └── types.ts
-│   └── package.json
-└── package.json
+|-- src/
+|   |-- agents/              # Employee + HR observer agents
+|   |-- engine/              # Scenario state machine and scoring
+|   |-- llm/                 # LLM provider adapters
+|   |-- reports/             # PDF report generation
+|   |-- audio/               # Voice/STT/TTS experiments
+|   `-- server/              # Express + WebSocket API
+|-- client/
+|   |-- src/components/      # Learner and coach-facing UI
+|   |-- src/hooks/           # WebSocket and voice hooks
+|   `-- src/services/        # Voice service integrations
+|-- TESTING.md
+|-- VOICE_SETUP.md
+`-- render.yaml
 ```
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
-- Gemini API key (get from [Google AI Studio](https://makersuite.google.com/app/apikey))
+- Gemini API key for the default hosted AI path
+- Optional: Google Cloud credentials for voice generation
 
-### Installation
+### Backend
 
-1. Clone the repository
-2. Install backend dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Install frontend dependencies:
-   ```bash
-   cd client
-   npm install
-   cd ..
-   ```
-
-4. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your GEMINI_API_KEY
-   ```
-
-### Running the Application
-
-#### Backend
 ```bash
-# Run backend server
+npm install
+cp .env.example .env
 npm run dev
 ```
-Server will start on `http://localhost:3000`
 
-#### Frontend
+The backend starts on `http://localhost:3000`.
+
+### Frontend
+
 ```bash
-# In a separate terminal
 cd client
+npm install
+cp .env.example .env
 npm run dev
 ```
-Frontend will start on `http://localhost:5173`
 
-### Testing
+The frontend starts on `http://localhost:5173`.
 
-Test individual components:
+### Useful Scripts
 
 ```bash
-# Test Gemini adapter
-npm run dev src/test-gemini.ts
-
-# Test multi-agent system
-npm run dev src/test-agents.ts
-
-# Test full scenario engine
-npm run dev src/test-scenario.ts
+npm run build          # Type-check and compile backend
+npm run dev            # Run backend in watch mode
+npm run lint           # Lint backend source
+cd client && npm run build
 ```
 
-## Available Scenarios
+## Environment Variables
 
-### Performance Review (MVP)
-Practice delivering feedback to an underperforming employee:
-- Defensive employee behaviors
-- HR risk monitoring
-- Real-time legal risk assessment
-- Automated coaching report
+Backend:
+
+```env
+PORT=3000
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=your_key_here
+ALLOWED_ORIGINS=http://localhost:5173,https://pathwise-ashy.vercel.app
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
+```
+
+Frontend:
+
+```env
+VITE_API_URL=http://localhost:3000
+VITE_WS_URL=ws://localhost:3000
+VITE_GEMINI_API_KEY=your_key_here
+```
+
+## Current Scenarios
+
+- Defensive performance review
+- Promotion denial
+- Layoff conversation
+- Role conflict and prioritization
+- Coaching-style feedback conversations
+
+Scenario definitions are intentionally data-rich: they include organization context, character biographies, hidden goals, objectives, and success criteria. That makes the system easier to expand without rewriting the engine.
+
+## Production Readiness Notes
+
+This repo is a working MVP, not a compliance-certified coaching product. The next production milestones are:
+
+- Persistent session storage instead of in-memory stores
+- Authentication and coach/client permissions
+- Automated evals for scenario quality and scoring consistency
+- Stronger document parsing for uploaded PDFs
+- Audit logging for enterprise coaching deployments
 
 ## Roadmap
 
-### Phase 1: MVP (Current)
-- [x] Gemini LLM integration
-- [x] Multi-agent system (Employee + HR)
-- [x] Scenario engine with performance review
-- [x] React frontend with chat + dashboard
-- [ ] WebSocket integration
-- [ ] Full end-to-end testing
+- [x] Multi-agent simulation engine
+- [x] Scenario library and learner flow
+- [x] Coach-facing dashboard surfaces
+- [x] PDF coaching reports
+- [x] Document upload for contextual practice
+- [x] Optional voice interaction experiments
+- [ ] Authenticated coach/client workspaces
+- [ ] Persistent session database
+- [ ] Scenario quality eval suite
+- [ ] Enterprise policy/RAG ingestion
 
-### Phase 2: Beta
-- [ ] Additional scenarios (Layoff, Promotion Denial)
-- [ ] RAG document upload (handbook, policies)
-- [ ] PDF report generation
-- [ ] Coach admin panel
+## Built By
 
-## License
-
-MIT
+Saurabh Bains - product builder focused on AI workflows for high-context human decisions.
